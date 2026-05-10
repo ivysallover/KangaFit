@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KangaFit Analytics</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,300&family=Barlow+Condensed:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:    #110E0C;
+  --bg2:   #1A1513;
+  --bg3:   #241D1A;
+  --bg4:   #302723;
+  --border:  rgba(212,195,163,0.08);
+  --border2: rgba(212,195,163,0.16);
+  --accent:  #5CB8E4;
+  --accent2: #D4C3A3;
+  --accent-dim: rgba(92,184,228,0.15);
+  --brand-brown: #5C4132;
+  --brand-brown-dim: rgba(92,65,50,0.2);
+  --text:  #F5F3F0;
+  --text2: #B0A89F;
+  --text3: #7A726A;
+  --green: #4A9B71;
+  --green-dim: rgba(74,155,113,0.15);
+  --red:   #C95A5A;
+  --red-dim:   rgba(201,90,90,0.15);
+  --blue:  #5CB8E4;
+  --blue-dim:  rgba(92,184,228,0.15);
+  --sidebar-w: 220px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+h1,h2,h3,h4,h5,h6{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-top:0;color:var(--text);}
+
+/* ── TOPBAR ── */
+.topbar{position:fixed;top:0;left:0;right:0;height:52px;background:rgba(10,10,10,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;z-index:100;}
+.logo{display:flex;align-items:center;gap:10px;width:var(--sidebar-w);flex-shrink:0;}
+.logo-mark{width:30px;height:30px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.logo-text{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;letter-spacing:.5px;color:#fff;}
+.logo-sub{font-size:10px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;}
+.topbar-right{display:flex;align-items:center;gap:12px;margin-left:auto;}
+.quarter-badge{font-size:11px;color:var(--text3);padding:4px 10px;border:1px solid var(--border2);border-radius:20px;}
+.avatar{width:28px;height:28px;border-radius:50%;background:var(--bg4);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--accent);cursor:pointer;}
+.notif{width:28px;height:28px;border-radius:50%;background:var(--bg4);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;}
+.notif-dot{position:absolute;top:6px;right:6px;width:6px;height:6px;background:var(--accent);border-radius:50%;border:1.5px solid var(--bg);}
+
+/* ── LAYOUT ── */
+.app{display:flex;padding-top:52px;min-height:100vh;}
+.sidebar{width:var(--sidebar-w);flex-shrink:0;position:fixed;top:52px;left:0;bottom:0;background:var(--bg2);border-right:1px solid var(--border);overflow-y:auto;padding:16px 0;}
+.sidebar::-webkit-scrollbar{width:0;}
+.sidebar-section-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;padding:8px 18px 4px;font-weight:600;}
+.sidebar-item{display:flex;align-items:center;gap:9px;padding:8px 18px;font-size:13px;color:var(--text2);cursor:pointer;border-left:2px solid transparent;transition:all .15s;user-select:none;}
+.sidebar-item:hover{color:var(--text);background:rgba(255,255,255,.04);}
+.sidebar-item.active{color:var(--accent);border-left-color:var(--accent);background:rgba(92,184,228,.08);}
+.sidebar-item svg{flex-shrink:0;opacity:.7;}
+.sidebar-item.active svg{opacity:1;}
+.sidebar-badge{margin-left:auto;font-size:10px;background:var(--red);color:#fff;padding:1px 6px;border-radius:10px;font-weight:600;}
+.sidebar-divider{height:1px;background:var(--border);margin:8px 0;}
+.main{margin-left:var(--sidebar-w);flex:1;min-height:calc(100vh - 52px);}
+.page{display:none;padding:28px;animation:fadeIn .2s ease;}
+.page.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── PAGE HEADER ── */
+.page-header{margin-bottom:24px;display:flex;align-items:flex-start;justify-content:space-between;}
+.page-title{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:700;letter-spacing:.5px;}
+.page-subtitle{font-size:13px;color:var(--text3);margin-top:2px;}
+.page-actions{display:flex;gap:8px;align-items:center;}
+.btn{font-size:12px;font-family:'Barlow',sans-serif;padding:7px 14px;border-radius:7px;border:1px solid var(--border2);background:var(--bg4);color:var(--text2);cursor:pointer;transition:all .15s;font-weight:500;}
+.btn:hover{border-color:var(--accent);color:var(--accent);}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+.btn-primary:hover{opacity:.85;}
+
+/* ── METRICS GRID ── */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
+.metric-card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:18px 20px;position:relative;overflow:hidden;}
+.metric-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--accent);opacity:0;transition:opacity .2s;}
+.metric-card:hover::before{opacity:1;}
+.metric-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);font-weight:600;margin-bottom:10px;}
+.metric-value{font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:700;line-height:1;letter-spacing:-.5px;}
+.metric-unit{font-size:11px;color:var(--text3);margin-top:4px;}
+.metric-delta{font-size:12px;margin-top:8px;font-weight:500;display:flex;align-items:center;gap:4px;}
+.delta-up{color:var(--green);}
+.delta-down{color:var(--red);}
+.delta-neutral{color:var(--text3);}
+
+/* ── GRID LAYOUTS ── */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.grid-3{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px;}
+.grid-3r{display:grid;grid-template-columns:1fr 2fr;gap:16px;margin-bottom:16px;}
+.col-span-2{grid-column:span 2;}
+
+/* ── CARD ── */
+.card{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:0;}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.card-title{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);font-weight:600;}
+.card-tag{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:600;}
+.tag-green{background:var(--green-dim);color:var(--green);}
+.tag-red{background:var(--red-dim);color:var(--red);}
+.tag-orange{background:var(--accent-dim);color:var(--accent2);}
+.tag-blue{background:var(--blue-dim);color:var(--blue);}
+
+/* ── BARS ── */
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:11px;}
+.bar-label{font-size:12px;color:var(--text2);width:160px;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bar-track{flex:1;background:var(--bg4);border-radius:3px;height:7px;}
+.bar-fill{height:7px;border-radius:3px;transition:width .6s ease;}
+.bar-fill-accent{background:var(--accent);}
+.bar-fill-green{background:var(--green);}
+.bar-fill-red{background:var(--red);}
+.bar-fill-muted{background:var(--text3);}
+.bar-val{font-size:12px;color:var(--text3);width:65px;text-align:right;flex-shrink:0;font-family:'Barlow Condensed',sans-serif;font-weight:600;}
+
+/* ── SEASON GRID ── */
+.season-grid{display:flex;align-items:flex-end;gap:5px;height:90px;}
+.season-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;}
+.season-bar{width:100%;border-radius:3px 3px 0 0;transition:height .4s;}
+.season-bar-active{background:var(--accent);}
+.season-bar-low{background:var(--bg4);border:1px solid var(--border2);}
+.season-mon{font-size:9px;color:var(--text3);font-weight:600;letter-spacing:.5px;}
+
+/* ── REVIEW CARDS ── */
+.review-card{background:var(--bg4);border:1px solid var(--border);border-radius:8px;padding:14px;margin-bottom:10px;}
+.review-stars{color:var(--accent);font-size:12px;margin-bottom:6px;letter-spacing:1px;}
+.review-text{font-size:13px;color:var(--text2);line-height:1.55;font-style:italic;}
+.review-meta{font-size:11px;color:var(--text3);margin-top:8px;display:flex;gap:8px;align-items:center;}
+.review-meta-dot{width:3px;height:3px;border-radius:50%;background:var(--text3);}
+
+/* ── SPECIES ── */
+.species-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border);}
+.species-row:last-child{border-bottom:none;}
+.species-name{font-size:13px;font-weight:500;color:var(--text);}
+.species-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+.species-bar-mini{flex:1;max-width:100px;background:var(--bg4);border-radius:2px;height:4px;margin:0 12px;}
+.species-bar-fill{height:4px;border-radius:2px;background:var(--accent);}
+.pill{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:600;white-space:nowrap;}
+.pill-up{background:var(--green-dim);color:var(--green);}
+.pill-down{background:var(--red-dim);color:var(--red);}
+.pill-new{background:var(--blue-dim);color:var(--blue);}
+.pill-warn{background:var(--accent-dim);color:var(--accent2);}
+
+/* ── ATHLETES ── */
+.athlete-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.athlete-card{background:var(--bg4);border:1px solid var(--border);border-radius:10px;padding:16px;}
+.athlete-header{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.athlete-avatar{width:40px;height:40px;border-radius:50%;background:var(--accent-dim);border:2px solid var(--accent);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.athlete-name{font-size:13px;font-weight:600;}
+.athlete-species{font-size:11px;color:var(--text3);}
+.athlete-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.athlete-stat{background:var(--bg3);border-radius:6px;padding:8px 10px;}
+.athlete-stat-label{font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:3px;}
+.athlete-stat-val{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;}
+.athlete-stat-unit{font-size:10px;color:var(--text3);}
+
+/* ── PRODUCT TABLE ── */
+.product-table{width:100%;border-collapse:collapse;}
+.product-table th{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);padding:8px 12px;border-bottom:1px solid var(--border);text-align:left;font-weight:600;}
+.product-table td{font-size:13px;padding:12px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:middle;}
+.product-table tr:last-child td{border-bottom:none;}
+.product-table tr:hover td{background:rgba(255,255,255,.02);}
+.product-name-cell{color:var(--text);font-weight:500;}
+.product-img{width:32px;height:32px;border-radius:6px;background:var(--bg4);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:14px;margin-right:10px;flex-shrink:0;}
+.product-name-wrap{display:flex;align-items:center;}
+
+/* ── REVENUE ── */
+.revenue-big{font-family:'Barlow Condensed',sans-serif;font-size:52px;font-weight:800;line-height:1;letter-spacing:-1px;}
+.revenue-sub{font-size:14px;color:var(--text3);margin-top:6px;}
+.breakdown-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
+.breakdown-row:last-child{border-bottom:none;}
+.breakdown-color{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+.breakdown-label{font-size:13px;color:var(--text2);flex:1;}
+.breakdown-val{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;}
+.breakdown-pct{font-size:11px;color:var(--text3);width:35px;text-align:right;}
+
+/* ── NPS ── */
+.nps-big{font-family:'Barlow Condensed',sans-serif;font-size:56px;font-weight:900;color:var(--accent);line-height:1;}
+.nps-label{font-size:11px;color:var(--text3);margin-top:4px;}
+.nps-track{flex:1;background:var(--bg4);border-radius:2px;height:6px;}
+.nps-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.nps-cat{font-size:11px;color:var(--text3);width:80px;}
+
+/* ── MISC ── */
+.divider{height:1px;background:var(--border);margin:16px 0;}
+.chart-wrap{position:relative;width:100%;}
+.main::-webkit-scrollbar{width:4px;}
+.main::-webkit-scrollbar-track{background:transparent;}
+.main::-webkit-scrollbar-thumb{background:var(--border2);border-radius:4px;}
+.mb16{margin-bottom:16px;}
+.insight-row{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border);}
+.insight-row:last-child{border-bottom:none;}
+.insight-num{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:800;color:var(--accent);width:36px;flex-shrink:0;}
+.insight-text{font-size:12px;color:var(--text2);line-height:1.5;}
+.insight-title{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.best-seller-badge{background:linear-gradient(90deg,var(--accent),#4A9B71);color:#fff;font-size:9px;padding:2px 7px;border-radius:10px;font-weight:700;letter-spacing:.5px;margin-left:8px;text-transform:uppercase;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-mark">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M12 2C9 2 6 5.5 6 9c0 2.5 1.2 4.8 3 6.2L8 19h8l-1-3.8C16.8 13.8 18 11.5 18 9c0-3.5-3-7-6-7z"/><ellipse cx="12" cy="21" rx="3" ry="1.5"/></svg>
+    </div>
+    <div>
+      <div class="logo-text">KangaFit</div>
+      <div class="logo-sub">Analytics Hub</div>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="quarter-badge" id="topbar-quarter">Q2 2025 · Outback</div>
+    <div class="notif">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <div class="notif-dot"></div>
+    </div>
+    <div class="avatar">KF</div>
+  </div>
+</div>
+
+<div class="app">
+  <div class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Principal</div>
+      <div class="sidebar-item active" data-page="overview">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Overview
+      </div>
+      <div class="sidebar-item" data-page="revenue">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Revenue
+      </div>
+      <div class="sidebar-item" data-page="productos">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        Productos
+      </div>
+      <div class="sidebar-item" data-page="devoluciones">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.88"/></svg>
+        Devoluciones
+        <span class="sidebar-badge" id="badge-devoluciones">!</span>
+      </div>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Análisis</div>
+      <div class="sidebar-item" data-page="clientes">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Especies
+      </div>
+      <div class="sidebar-item" data-page="atletas">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
+        Atletas
+      </div>
+      <div class="sidebar-item" data-page="reviews">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Reviews
+      </div>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Estrategia</div>
+      <div class="sidebar-item" data-page="especies">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+        Mercado por Especie
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- ===== OVERVIEW ===== -->
+    <div class="page active" id="page-overview">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Overview — Q2 2025</div>
+          <div class="page-subtitle" id="overview-subtitle">Cargando datos...</div>
+        </div>
+        <div class="page-actions">
+          <button class="btn">Exportar</button>
+          <button class="btn btn-primary">Informe Q2</button>
+        </div>
+      </div>
+      <div class="metrics" id="overview-metrics"></div>
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Top productos por revenue Q2</div>
+            <span class="card-tag tag-orange">Q2 2025</span>
+          </div>
+          <div id="overview-top-products"></div>
+          <div class="divider"></div>
+          <div style="font-size:11px;color:var(--text3);line-height:1.5;" id="overview-top-products-note"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Demanda estacional 2025</div></div>
+          <div class="season-grid" id="overview-season-grid"></div>
+          <div style="margin-top:10px;font-size:11px;color:var(--text3);">Pico: temporada de apareamiento (Abr–Jun) · Valle: invierno outback (Jul–Ago)</div>
+          <div class="divider"></div>
+          <div style="display:flex;gap:16px;" id="overview-season-summary"></div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Revenue por canal — Q2 2025</div>
+            <span class="card-tag tag-blue">Todos los canales</span>
+          </div>
+          <div id="overview-canal-list"></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">NPS por segmento</div>
+            <span class="card-tag tag-green" id="nps-tag-global"></span>
+          </div>
+          <div style="display:flex;align-items:center;gap:24px;margin-bottom:16px;">
+            <div>
+              <div class="nps-big" id="nps-big-num"></div>
+              <div class="nps-label">NPS global Q2</div>
+            </div>
+            <div style="flex:1;" id="nps-bars"></div>
+          </div>
+          <div class="divider"></div>
+          <div id="nps-by-species"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== REVENUE ===== -->
+    <div class="page" id="page-revenue">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Revenue</div>
+          <div class="page-subtitle" id="revenue-subtitle">Historial completo · Todos los canales</div>
+        </div>
+      </div>
+      <div class="grid-3r">
+        <div class="card">
+          <div class="card-title" style="margin-bottom:12px;">Revenue Q2 2025</div>
+          <div class="revenue-big" id="rev-q2-big"></div>
+          <div class="revenue-sub" id="rev-q2-sub"></div>
+          <div class="divider"></div>
+          <div class="card-title" style="margin-bottom:12px;">Por canal</div>
+          <div id="rev-canal-list"></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Revenue mensual — top 5 productos</div>
+            <span class="card-tag tag-orange">2024 – 2025</span>
+          </div>
+          <div class="chart-wrap" style="height:280px;">
+            <canvas id="revenueChart"></canvas>
+          </div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Revenue por producto Q2 2025</div></div>
+          <div class="chart-wrap" style="height:220px;">
+            <canvas id="productRevenueChart"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Revenue por especie — Q2 2025</div></div>
+          <div id="rev-especie-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== PRODUCTOS ===== -->
+    <div class="page" id="page-productos">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Catálogo de Productos</div>
+          <div class="page-subtitle" id="productos-subtitle">Cargando...</div>
+        </div>
+      </div>
+      <div class="card mb16">
+        <div class="card-header"><div class="card-title">Performance por producto — Q2 2025</div></div>
+        <table class="product-table" id="productos-table">
+          <thead>
+            <tr>
+              <th>Producto</th><th>Cat.</th><th>Precio</th>
+              <th>Unidades Q2</th><th>Revenue Q2</th>
+              <th>Dev. Rate</th><th>Costo dev.</th><th>Estado</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Unidades vendidas Q2 por producto</div></div>
+          <div class="chart-wrap" style="height:220px;"><canvas id="productUnitsChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Revenue Q2 por categoría</div></div>
+          <div class="chart-wrap" style="height:220px;"><canvas id="categoryChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== DEVOLUCIONES ===== -->
+    <div class="page" id="page-devoluciones">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Devoluciones Q2 2025</div>
+          <div class="page-subtitle" id="dev-subtitle">Cargando...</div>
+        </div>
+      </div>
+      <div class="metrics" id="dev-metrics"></div>
+      <div class="grid-2 mb16">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Tasa de devolución por producto</div>
+            <span class="card-tag tag-red">Q2 2025</span>
+          </div>
+          <div id="dev-tasa-bars"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Motivos de devolución consolidados</div></div>
+          <div class="chart-wrap" style="height:220px;"><canvas id="motivosChart"></canvas></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Costo de devoluciones por producto</div>
+          <span class="card-tag tag-red" id="dev-costo-total-tag"></span>
+        </div>
+        <div id="dev-costo-bars"></div>
+      </div>
+    </div>
+
+    <!-- ===== ESPECIES (clientes) ===== -->
+    <div class="page" id="page-clientes">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Segmentación por Especie</div>
+          <div class="page-subtitle">Q2 2025 · Análisis de comportamiento</div>
+        </div>
+      </div>
+      <div class="metrics" id="especies-metrics"></div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Revenue Q2 por especie</div></div>
+          <div class="chart-wrap" style="height:220px;"><canvas id="especieRevenueChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">NPS por especie</div></div>
+          <div id="nps-especie-bars"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">Detalle por especie</div></div>
+        <div id="especie-detail-list"></div>
+      </div>
+    </div>
+
+    <!-- ===== ATLETAS ===== -->
+    <div class="page" id="page-atletas">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Atletas Patrocinados</div>
+          <div class="page-subtitle" id="atletas-subtitle">Cargando...</div>
+        </div>
+      </div>
+      <div class="metrics" id="atletas-metrics"></div>
+      <div class="card mb16">
+        <div class="card-header">
+          <div class="card-title">Performance del equipo</div>
+          <span class="card-tag tag-green" id="atletas-record-tag"></span>
+        </div>
+        <div class="athlete-grid" id="atletas-grid"></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Mejora de salto con kit KangaFit</div></div>
+          <div class="chart-wrap" style="height:220px;"><canvas id="atletasJumpChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Velocidad de crucero por atleta</div></div>
+          <div class="chart-wrap" style="height:220px;"><canvas id="atletasVelChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== REVIEWS ===== -->
+    <div class="page" id="page-reviews">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Reviews & NPS</div>
+          <div class="page-subtitle" id="reviews-subtitle">Cargando...</div>
+        </div>
+      </div>
+      <div class="metrics" id="reviews-metrics"></div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Distribución de ratings</div></div>
+          <div class="chart-wrap" style="height:200px;"><canvas id="ratingsChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Temas más mencionados</div></div>
+          <div id="temas-bars"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Últimas reviews — muestra</div>
+          <span class="card-tag tag-green" id="reviews-respondidas-tag"></span>
+        </div>
+        <div id="reviews-list"></div>
+      </div>
+    </div>
+
+    <!-- ===== MERCADO POR ESPECIE ===== -->
+    <div class="page" id="page-especies">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Mercado por Especie</div>
+          <div class="page-subtitle">Análisis regional y expansión — Q2 2025</div>
+        </div>
+      </div>
+      <div class="grid-2 mb16">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Revenue por región y especie</div></div>
+          <div class="chart-wrap" style="height:260px;"><canvas id="regionEspecieChart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">Especies por rendimiento</div></div>
+          <div id="species-ranking-list"></div>
+          <div class="divider"></div>
+          <div style="font-size:11px;color:var(--text3);line-height:1.5;" id="species-note"></div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header"><div class="card-title">Preferencias de producto por especie</div></div>
+          <div id="pref-producto-especie"></div>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Oportunidades de expansión</div>
+            <span class="card-tag tag-blue">Roadmap 2026</span>
+          </div>
+          <div class="insight-row">
+            <div class="insight-num">01</div>
+            <div>
+              <div class="insight-title">Línea Wallaby — lanzamiento Q4 2025</div>
+              <div class="insight-text">El segmento wallaby creció más del 40% en Q2 con el catálogo estándar, sin productos específicos. Una línea adaptada a su anatomía tiene potencial estimado de $380k en el primer año.</div>
+            </div>
+          </div>
+          <div class="insight-row">
+            <div class="insight-num">02</div>
+            <div>
+              <div class="insight-title">Colección Tree Kangaroo — piloto Q3 2025</div>
+              <div class="insight-text">El canguro arbóreo requiere un corte radicalmente diferente. Ticket alto y comunidad fiel. Piloto de 3 SKUs antes de comprometer producción full.</div>
+            </div>
+          </div>
+          <div class="insight-row">
+            <div class="insight-num">03</div>
+            <div>
+              <div class="insight-title">Categoría Joey — ropa deportiva para crías</div>
+              <div class="insight-text">El 34% de compradores adultos consulta sobre productos para joeys. Demanda no atendida. Requiere investigación de materiales hipoalergénicos.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<script>
+// ════════════════════════════════════════════════════════
+//  HELPERS
+// ════════════════════════════════════════════════════════
+const fmt  = n => new Intl.NumberFormat('es-AR').format(Math.round(n));
+const fmtK = n => n >= 1000000 ? (n/1000000).toFixed(2)+'M' : n >= 1000 ? (n/1000).toFixed(1)+'k' : Math.round(n).toString();
+const fmtAUD = n => '$'+fmtK(n)+' AUD';
+const pct  = (a,b) => b ? ((a-b)/b*100).toFixed(1) : '0.0';
+const clr  = ['#5CB8E4','#4A9B71','#D4C3A3','#C95A5A','#7A8FA6','#E8B86D','#9B7EC8','#5EA99B','#D4845A','#8EA65C'];
+
+// NUEVO: Mapa de colores por especie para dar coherencia visual al dashboard
+const ESPECIE_COLORS = {
+  "Canguro rojo":    "#C95A5A", 
+  "Canguro gris":    "#7A726A", 
+  "Wallaby":         "#5C4132", 
+  "Canguro arbóreo": "#4A9B71"  
+};
+const chartDefaults = {
+  color:'#B0A89F',
+  borderColor:'rgba(212,195,163,0.08)',
+  plugins:{legend:{labels:{color:'#B0A89F',font:{family:"'Barlow',sans-serif",size:11}}},tooltip:{backgroundColor:'#1A1513',borderColor:'rgba(212,195,163,0.2)',borderWidth:1,titleColor:'#F5F3F0',bodyColor:'#B0A89F'}},
+  scales:{x:{ticks:{color:'#7A726A',font:{size:10}},grid:{color:'rgba(212,195,163,0.05)'}},y:{ticks:{color:'#7A726A',font:{size:10}},grid:{color:'rgba(212,195,163,0.05)'}}}
+};
+
+function metricCard(label,value,unit,delta,deltaLabel){
+  const sign = parseFloat(delta)>0?'+':'';
+  const cls  = parseFloat(delta)>0?'delta-up':parseFloat(delta)<0?'delta-down':'delta-neutral';
+  return `<div class="metric-card">
+    <div class="metric-label">${label}</div>
+    <div class="metric-value">${value}</div>
+    <div class="metric-unit">${unit}</div>
+    ${delta!==null?`<div class="metric-delta"><span class="${cls}">${sign}${delta}%</span><span style="color:var(--text3);font-size:11px;">${deltaLabel}</span></div>`:''}
+  </div>`;
+}
+
+function barRow(label,pct,val,colorClassOrValue='bar-fill-accent'){
+  // Si el valor no empieza con 'bar-fill-', asumimos que es un color hexadecimal o var CSS
+  let isColorValue = !colorClassOrValue.startsWith('bar-fill-');
+  let fillStyle = isColorValue ? `style="background:${colorClassOrValue}"` : '';
+  let fillClass = isColorValue ? '' : colorClassOrValue;
+
+  return `<div class="bar-row">
+    <div class="bar-label">${label}</div>
+    <div class="bar-track"><div class="bar-fill ${fillClass}" style="width:${Math.min(pct,100)}%" ${fillStyle}></div></div>
+    <div class="bar-val">${val}</div>
+  </div>`;
+}
+
+// ════════════════════════════════════════════════════════
+//  NAVIGATION
+// ════════════════════════════════════════════════════════
+document.querySelectorAll('.sidebar-item[data-page]').forEach(el=>{
+  el.addEventListener('click',()=>{
+    document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('page-'+el.dataset.page).classList.add('active');
+  });
+});
+
+// ════════════════════════════════════════════════════════
+//  LOAD JSON & RENDER
+// ════════════════════════════════════════════════════════
+fetch('KangaFit.json')
+  .then(r=>r.json())
+  .then(DATA=>{
+    const K   = DATA.kpis;
+    const VM  = DATA.ventas_mensuales;
+    const DEV = DATA.devoluciones;
+    const REV = DATA.reviews;
+    const ATL = DATA.atletas;
+    const ESP = DATA.especies;
+    const PROD= DATA.productos;
+    const VR  = DATA.ventas_por_region;
+
+    // ── Pre-compute Q2 2025 per product from ventas_mensuales ──
+    const prodRevQ2={}, prodUniQ2={};
+    VM.forEach(v=>{
+      if(v.anio===2025 && [4,5,6].includes(v.mes)){
+        prodRevQ2[v.producto_id]=(prodRevQ2[v.producto_id]||0)+v.revenue;
+        prodUniQ2[v.producto_id]=(prodUniQ2[v.producto_id]||0)+v.unidades;
+      }
+    });
+
+    // ── Monthly revenue per product (2024-2025) ──
+    const monthly2425={};
+    VM.forEach(v=>{
+      if(v.anio<2024) return;
+      const key=v.anio+'-'+String(v.mes).padStart(2,'0');
+      if(!monthly2425[key]) monthly2425[key]={};
+      monthly2425[key][v.producto_id]=(monthly2425[key][v.producto_id]||0)+v.revenue;
+    });
+    const sortedMonths=Object.keys(monthly2425).sort();
+
+    // ── Revenue Q2 per region (aggregate VR) ──
+    const regionRevQ2={};
+    VR.forEach(r=>{ regionRevQ2[r.region]=(regionRevQ2[r.region]||0)+r.revenue; });
+
+    // ═════════════════════════════════════
+    //  OVERVIEW
+    // ═════════════════════════════════════
+    document.getElementById('overview-subtitle').textContent=
+      `Mayo 2019 – Mayo 2026 · ${DATA.metadata.descripcion}`;
+
+    const revQ2=K.revenue_total_q2, revQ1=K.revenue_q1;
+    document.getElementById('overview-metrics').innerHTML=
+      metricCard('Revenue Q2 2025','$'+fmtK(revQ2),'AUD',K.delta_q2_vs_q1_pct,'vs Q1')+
+      metricCard('Unidades vendidas',fmt(K.unidades_vendidas_q2),'Q2 2025',K.delta_unidades_pct,'vs Q1')+
+      metricCard('Ticket promedio','$'+Math.round(K.ticket_promedio),'AUD',null,'')+
+      metricCard('NPS Global',K.nps_q2,'score',((K.nps_q2-K.nps_q1)/K.nps_q1*100).toFixed(1),'vs Q1');
+
+    // Top products
+    const topProds=Object.entries(prodRevQ2).sort((a,b)=>b[1]-a[1]).slice(0,5);
+    const maxRev=topProds[0][1];
+    const prodInfo=Object.fromEntries(PROD.map(p=>[p.id,p]));
+    const isBestSeller=new Set(K.best_sellers);
+    document.getElementById('overview-top-products').innerHTML=topProds.map(([id,rev])=>{
+      const p=prodInfo[id];
+      const bs=isBestSeller.has(p.nombre)?`<span class="best-seller-badge">⭐ Best Seller</span>`:'';
+      return barRow(`${p.emoji} ${p.nombre}${bs}`,rev/maxRev*100,fmtAUD(rev));
+    }).join('');
+    document.getElementById('overview-top-products-note').textContent=
+      `Best sellers: ${K.best_sellers.join(' & ')}. Representan ${(topProds.slice(0,2).reduce((s,[,v])=>s+v,0)/revQ2*100).toFixed(0)}% del revenue Q2.`;
+
+    // Seasonality from VM 2025
+    const MONTHS=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    const revByMonth2025=Array(12).fill(0);
+    VM.forEach(v=>{ if(v.anio===2025) revByMonth2025[v.mes-1]+=v.revenue; });
+    const maxM=Math.max(...revByMonth2025.filter(v=>v>0));
+    const currentM=4; // Q2 peak
+    document.getElementById('overview-season-grid').innerHTML=MONTHS.map((m,i)=>{
+      const h=revByMonth2025[i]?Math.max(10,revByMonth2025[i]/maxM*75):8;
+      const isActive=revByMonth2025[i]>0;
+      const cls=isActive&&[3,4,5].includes(i)?'season-bar-active':'season-bar-low';
+      return `<div class="season-col">
+        <div class="season-bar ${cls}" style="height:${h}px"></div>
+        <div class="season-mon">${m}</div>
+      </div>`;
+    }).join('');
+    const peakM=revByMonth2025.indexOf(maxM);
+    document.getElementById('overview-season-summary').innerHTML=
+      `<div><div style="font-size:11px;color:var(--text3);">Pico 2025</div><div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;">${MONTHS[peakM]}</div></div>
+       <div><div style="font-size:11px;color:var(--text3);">Rev. pico</div><div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;">${fmtAUD(maxM)}</div></div>
+       <div><div style="font-size:11px;color:var(--text3);">SKUs activos</div><div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;">${K.skus_activos}</div></div>`;
+
+    // Canal revenue
+    const totalCanal=Object.values(K.canal_revenue).reduce((s,v)=>s+v,0);
+    const canalColors=['#5CB8E4','#4A9B71','#D4C3A3','#C95A5A'];
+    document.getElementById('overview-canal-list').innerHTML=
+      Object.entries(K.canal_revenue).map(([canal,rev],i)=>
+        `<div class="breakdown-row">
+          <div class="breakdown-color" style="background:${canalColors[i]}"></div>
+          <div class="breakdown-label">${canal}</div>
+          <div class="breakdown-val">${fmtAUD(rev)}</div>
+          <div class="breakdown-pct">${(rev/totalCanal*100).toFixed(0)}%</div>
+        </div>`
+      ).join('');
+
+    // NPS
+    document.getElementById('nps-tag-global').textContent=`NPS ${K.nps_q2}`;
+    document.getElementById('nps-big-num').textContent=K.nps_q2;
+    document.getElementById('nps-bars').innerHTML=
+      ['Promotores','Pasivos','Detractores'].map((l,i)=>{
+        const vals=[K.nps_promotores_pct,K.nps_pasivos_pct,K.nps_detractores_pct];
+        const colors=['var(--green)','var(--text3)','var(--red)'];
+        return `<div class="nps-bar-row">
+          <div class="nps-cat">${l}</div>
+          <div class="nps-track"><div style="width:${vals[i]}%;height:6px;border-radius:2px;background:${colors[i]}"></div></div>
+          <div style="font-size:12px;font-family:'Barlow Condensed',sans-serif;font-weight:700;width:30px;text-align:right;">${vals[i]}%</div>
+        </div>`;
+      }).join('');
+    const maxNPS=Math.max(...Object.values(K.nps_por_especie));
+    document.getElementById('nps-by-species').innerHTML=
+    Object.entries(K.nps_por_especie).map(([esp,nps])=>
+    // CAMBIO: Pasamos el color real de la especie
+    barRow(esp,nps/maxNPS*100,nps+' NPS', ESPECIE_COLORS[esp]) 
+  ).join('');
+
+    // ═════════════════════════════════════
+    //  REVENUE PAGE
+    // ═════════════════════════════════════
+    document.getElementById('revenue-subtitle').textContent=
+      `Histórico completo · Revenue total: ${fmtAUD(K.revenue_historico)}`;
+    document.getElementById('rev-q2-big').textContent=fmtAUD(revQ2);
+    document.getElementById('rev-q2-sub').innerHTML=
+      `<span style="color:var(--green)">+${K.delta_q2_vs_q1_pct}%</span> vs Q1 2025 &nbsp;|&nbsp; `+
+      `<span style="color:var(--green)">+${K.delta_q2_vs_q2_2024_pct}%</span> vs Q2 2024`;
+    document.getElementById('rev-canal-list').innerHTML=
+      Object.entries(K.canal_revenue).map(([canal,rev],i)=>`
+        <div class="breakdown-row">
+          <div class="breakdown-color" style="background:${canalColors[i]}"></div>
+          <div class="breakdown-label">${canal}</div>
+          <div class="breakdown-val">${fmtAUD(rev)}</div>
+          <div class="breakdown-pct">${(rev/totalCanal*100).toFixed(0)}%</div>
+        </div>`).join('');
+
+    // Revenue chart (line) — top 5 products monthly 2024-2025
+    const top5ids=Object.entries(prodRevQ2).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([id])=>id);
+    const chartLabels=sortedMonths.map(k=>{const[y,m]=k.split('-');return MONTHS[+m-1]+" '"+y.slice(2);});
+    const datasets=top5ids.map((id,i)=>({
+      label:prodInfo[id]?prodInfo[id].nombre:id,
+      data:sortedMonths.map(k=>(monthly2425[k]||{})[id]||null),
+      borderColor:clr[i],backgroundColor:clr[i]+'22',
+      borderWidth:2,pointRadius:2,tension:.4,fill:false,spanGaps:true
+    }));
+    new Chart(document.getElementById('revenueChart'),{
+      type:'line',data:{labels:chartLabels,datasets},
+      options:{...chartDefaults,responsive:true,maintainAspectRatio:false}
+    });
+
+    // Product Revenue Bar Q2
+    const prSorted=Object.entries(prodRevQ2).sort((a,b)=>b[1]-a[1]);
+    new Chart(document.getElementById('productRevenueChart'),{
+      type:'bar',
+      data:{
+        labels:prSorted.map(([id])=>prodInfo[id]?prodInfo[id].nombre:id),
+        datasets:[{label:'Revenue Q2',data:prSorted.map(([,v])=>v),backgroundColor:prSorted.map((_,i)=>clr[i]+'CC'),borderRadius:4}]
+      },
+      options:{...chartDefaults,responsive:true,maintainAspectRatio:false,plugins:{...chartDefaults.plugins,legend:{display:false}}}
+    });
+
+    // Revenue per especie
+    const maxEspRev=Math.max(...ESP.map(e=>e.revenue_q2));
+    document.getElementById('rev-especie-list').innerHTML=ESP.map(e=>
+      // CAMBIO: Pasamos el color real de la especie
+      barRow(e.especie,e.revenue_q2/maxEspRev*100,fmtAUD(e.revenue_q2), ESPECIE_COLORS[e.especie])
+    ).join('');
+
+    // ═════════════════════════════════════
+    //  PRODUCTOS PAGE
+    // ═════════════════════════════════════
+    document.getElementById('productos-subtitle').textContent=
+      `${PROD.length} SKUs activos · Best sellers: ${K.best_sellers.join(' & ')}`;
+    const devMap=Object.fromEntries(DEV.map(d=>[d.producto_id,d]));
+    const tbody=document.querySelector('#productos-table tbody');
+    const prodsSorted=[...PROD].sort((a,b)=>(prodRevQ2[b.id]||0)-(prodRevQ2[a.id]||0));
+    tbody.innerHTML=prodsSorted.map(p=>{
+      const d=devMap[p.id]||{};
+      const rev=prodRevQ2[p.id]||0;
+      const uni=prodUniQ2[p.id]||0;
+      const bs=isBestSeller.has(p.nombre)?`<span class="best-seller-badge">⭐ Best</span>`:'';
+      const devRate=d.tasa_devolucion||0;
+      const devCls=devRate>30?'tag-red':devRate>20?'tag-orange':'tag-green';
+      return `<tr>
+        <td><div class="product-name-wrap"><div class="product-img">${p.emoji}</div><span class="product-name-cell">${p.nombre}${bs}</span></div></td>
+        <td>${p.categoria}</td>
+        <td>$${p.precio}</td>
+        <td>${fmt(uni)}</td>
+        <td>$${fmt(rev)}</td>
+        <td><span class="card-tag ${devCls}">${devRate}%</span></td>
+        <td>$${fmt(d.costo_devolucion||0)}</td>
+        <td><span class="pill ${devRate>30?'pill-down':devRate>20?'pill-warn':'pill-up'}">${devRate>30?'Crítico':devRate>20?'Atención':'OK'}</span></td>
+      </tr>`;
+    }).join('');
+
+    // Units per product
+    new Chart(document.getElementById('productUnitsChart'),{
+      type:'bar',
+      data:{
+        labels:prodsSorted.map(p=>p.emoji+' '+p.nombre.split(' ')[0]),
+        datasets:[{label:'Unidades Q2',data:prodsSorted.map(p=>prodUniQ2[p.id]||0),backgroundColor:prodsSorted.map((_,i)=>clr[i]+'CC'),borderRadius:4}]
+      },
+      options:{...chartDefaults,responsive:true,maintainAspectRatio:false,plugins:{...chartDefaults.plugins,legend:{display:false}}}
+    });
+
+    // Revenue by categoria
+    const catRev={};
+    PROD.forEach(p=>{ catRev[p.categoria]=(catRev[p.categoria]||0)+(prodRevQ2[p.id]||0); });
+    const catEntries=Object.entries(catRev).sort((a,b)=>b[1]-a[1]);
+    new Chart(document.getElementById('categoryChart'),{
+      type:'doughnut',
+      data:{
+        labels:catEntries.map(([c])=>c),
+        datasets:[{data:catEntries.map(([,v])=>v),backgroundColor:catEntries.map((_,i)=>clr[i]),borderWidth:0}]
+      },
+      options:{...chartDefaults,responsive:true,maintainAspectRatio:false,
+        plugins:{...chartDefaults.plugins,legend:{position:'right',labels:{color:'#B0A89F',font:{size:10}}}}}
+    });
+
+    // ═════════════════════════════════════
+    //  DEVOLUCIONES
+    // ═════════════════════════════════════
+const totalDev=DEV.reduce((s,d)=>s+d.unidades_devueltas,0);
+    const totalCostoDev=DEV.reduce((s,d)=>s+d.costo_devolucion,0);
+    const totalVendidasDev=DEV.reduce((s,d)=>s+d.unidades_vendidas_q2,0);
+    
+    // Ordenamos para saber cuál es el peor producto de verdad
+    const devSorted=[...DEV].sort((a,b)=>b.tasa_devolucion-a.tasa_devolucion);
+    const peorProducto = devSorted[0];
+
+    document.getElementById('dev-subtitle').textContent=
+      `${totalDev} unidades devueltas · $${fmt(totalCostoDev)} AUD en costos`;
+    document.getElementById('dev-metrics').innerHTML=
+      metricCard('Total devueltas',fmt(totalDev),'unidades Q2',null,'')+
+      metricCard('Tasa global',(totalDev/totalVendidasDev*100).toFixed(1)+'%','de lo vendido',(K.tasa_devolucion_q2-K.tasa_devolucion_q1).toFixed(1),'vs Q1')+
+      metricCard('Costo total',fmtAUD(totalCostoDev),'AUD en devoluciones',null,'')+
+      // Ahora lee dinámicamente el ID y el nombre del producto con más devoluciones
+      metricCard('Producto crítico', peorProducto.producto_id, peorProducto.producto_nombre, null, '');
+    const maxDev=devSorted[0].tasa_devolucion;
+    document.getElementById('dev-tasa-bars').innerHTML=devSorted.map(d=>{
+      const cls=d.tasa_devolucion>30?'bar-fill-red':d.tasa_devolucion>20?'bar-fill-accent':'bar-fill-green';
+      const pi=PROD.find(p=>p.id===d.producto_id);
+      return barRow((pi?pi.emoji+' ':'')+d.producto_nombre,d.tasa_devolucion/maxDev*100,d.tasa_devolucion+'%',cls);
+    }).join('');
+
+    // Motivos consolidados
+    const motivosTotales={};
+    DEV.forEach(d=>Object.entries(d.motivos||{}).forEach(([m,c])=>{
+      motivosTotales[m]=(motivosTotales[m]||0)+c;
+    }));
+    const motivosSorted=Object.entries(motivosTotales).sort((a,b)=>b[1]-a[1]);
+    new Chart(document.getElementById('motivosChart'),{
+      type:'bar',
+      data:{
+        labels:motivosSorted.map(([m])=>m),
+        datasets:[{label:'Casos',data:motivosSorted.map(([,v])=>v),backgroundColor:motivosSorted.map((_,i)=>clr[i]+'CC'),borderRadius:4}]
+      },
+      options:{...chartDefaults,indexAxis:'y',responsive:true,maintainAspectRatio:false,
+        plugins:{...chartDefaults.plugins,legend:{display:false}},
+        scales:{...chartDefaults.scales,x:{...chartDefaults.scales.x},y:{ticks:{color:'#7A726A',font:{size:9}},grid:{color:'rgba(212,195,163,0.05)'}}}}
+    });
+
+    const devCostoSorted=[...DEV].sort((a,b)=>b.costo_devolucion-a.costo_devolucion);
+    const maxCosto=devCostoSorted[0].costo_devolucion;
+    document.getElementById('dev-costo-total-tag').textContent='Total '+fmtAUD(totalCostoDev);
+    document.getElementById('dev-costo-bars').innerHTML=devCostoSorted.map(d=>{
+      const pi=PROD.find(p=>p.id===d.producto_id);
+      return barRow((pi?pi.emoji+' ':'')+d.producto_nombre,d.costo_devolucion/maxCosto*100,fmtAUD(d.costo_devolucion),'bar-fill-red');
+    }).join('');
+
+    // ═════════════════════════════════════
+    //  ESPECIES / CLIENTES
+    // ═════════════════════════════════════
+    const totalRevEsp=ESP.reduce((s,e)=>s+e.revenue_q2,0);
+    document.getElementById('especies-metrics').innerHTML=ESP.map(e=>{
+      const cls=e.delta_q1_pct>0?'delta-up':'delta-down';
+      return `<div class="metric-card">
+        <div class="metric-label">${e.especie}</div>
+        <div class="metric-value">${fmtAUD(e.revenue_q2)}</div>
+        <div class="metric-unit">${fmt(e.unidades_q2)} uds · ${(e.revenue_q2/totalRevEsp*100).toFixed(0)}% del revenue</div>
+        <div class="metric-delta"><span class="${cls}">${e.delta_q1_pct>0?'+':''}${e.delta_q1_pct}%</span><span style="color:var(--text3);font-size:11px;">vs Q1</span></div>
+      </div>`;
+    }).join('');
+
+    new Chart(document.getElementById('especieRevenueChart'),{
+      type:'doughnut',
+      data:{
+        labels:ESP.map(e=>e.especie),
+        datasets:[{data:ESP.map(e=>e.revenue_q2),backgroundColor:ESP.map(e=>ESPECIE_COLORS[e.especie]),borderWidth:0}]
+      },
+      options:{...chartDefaults,responsive:true,maintainAspectRatio:false,
+        plugins:{...chartDefaults.plugins,legend:{position:'right',labels:{color:'#B0A89F',font:{size:11}}}}}
+    });
+
+    const maxNPSEsp=Math.max(...Object.values(K.nps_por_especie));
+    document.getElementById('nps-especie-bars').innerHTML=
+    Object.entries(K.nps_por_especie).map(([esp,nps])=>
+    // CAMBIO: Pasamos el color real de la especie
+    barRow(esp,nps/maxNPSEsp*100,nps+' NPS', ESPECIE_COLORS[esp])
+  ).join('');
+
+    document.getElementById('especie-detail-list').innerHTML=ESP.map(e=>`
+      <div class="species-row">
+        <div class="species-info">
+          <div class="species-name">${e.especie}</div>
+          <div class="species-sub">Fav: ${e.producto_favorito} (${e.pct_producto_favorito}%) · ${e.region_principal}</div>
+        </div>
+        <div class="species-bar-mini"><div class="species-bar-fill" style="width:${e.revenue_q2/totalRevEsp*100}%"></div></div>
+        <div style="text-align:right;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;">${fmtAUD(e.revenue_q2)}</div>
+          <div style="font-size:11px;color:var(--text3);">Ticket $${e.ticket_promedio}</div>
+        </div>
+        <div style="margin-left:12px;">
+          <span class="pill ${e.estado==='Líder'?'pill-up':e.estado==='Emergente'?'pill-new':e.estado==='En riesgo'?'pill-down':'pill-warn'}">${e.estado}</span>
+        </div>
+      </div>`).join('');
+
+    // ═════════════════════════════════════
+    //  ATLETAS
+    // ═════════════════════════════════════
+    const avgMejora=(ATL.reduce((s,a)=>s+a.mejora_kit_pct,0)/ATL.length).toFixed(1);
+    const bestJump=ATL.reduce((b,a)=>a.salto_max>b.salto_max?a:b);
+    document.getElementById('atletas-subtitle').textContent=
+      `${K.atletas_patrocinados} atletas patrocinados · Retención ${K.retencion_sponsor_pct}%`;
+    document.getElementById('atletas-record-tag').textContent=
+      `🏆 Récord: ${bestJump.salto_max}m — ${bestJump.nombre}`;
+    document.getElementById('atletas-metrics').innerHTML=
+document.getElementById('atletas-metrics').innerHTML=
+      // Usa el largo del array (8) en vez de los 48 inventados
+      metricCard('Atletas patrocinados', ATL.length, 'contratos activos', null, '')+
+      metricCard('Mejora promedio salto', avgMejora+'%', 'con kit KangaFit', null, '')+
+      // La retención la dejamos fija porque no tenés datos de atletas que se fueron para calcularla
+      metricCard('Retención sponsor', K.retencion_sponsor_pct+'%', 'renovación anual', null, '')+
+      // Usa al atleta que el HTML calculó como el que más saltó
+      metricCard('Récord temporada', bestJump.salto_max+'m', 'salto — '+bestJump.nombre, null, '');
+
+    const speciesEmoji={'Canguro rojo':'🦘','Canguro gris':'🐨','Wallaby':'🐾','Canguro arbóreo':'🌿'};
+    document.getElementById('atletas-grid').innerHTML=ATL.map(a=>`
+      <div class="athlete-card">
+        <div class="athlete-header">
+          <div class="athlete-avatar">${speciesEmoji[a.especie]||'🦘'}</div>
+          <div>
+            <div class="athlete-name">${a.nombre}</div>
+            <div class="athlete-species">${a.especie} · ${a.categoria}</div>
+          </div>
+        </div>
+        <div class="athlete-stats">
+          <div class="athlete-stat"><div class="athlete-stat-label">Salto máx</div><div class="athlete-stat-val">${a.salto_max}<span class="athlete-stat-unit"> m</span></div></div>
+          <div class="athlete-stat"><div class="athlete-stat-label">Vel. crucero</div><div class="athlete-stat-val">${a.vel_crucero}<span class="athlete-stat-unit"> km/h</span></div></div>
+          <div class="athlete-stat"><div class="athlete-stat-label">Mejora kit</div><div class="athlete-stat-val" style="color:var(--green)">+${a.mejora_kit_pct}<span class="athlete-stat-unit">%</span></div></div>
+          <div class="athlete-stat"><div class="athlete-stat-label">Temporadas</div><div class="athlete-stat-val">${a.temporadas_activo}</div></div>
+        </div>
+      </div>`).join('');
+
+    // Jump chart
+    new Chart(document.getElementById('atletasJumpChart'),{
+      type:'bar',
+      data:{
+        labels:ATL.map(a=>a.nombre),
+        datasets:[
+          {label:'Sin kit',data:ATL.map(a=>a.salto_sin_kit),backgroundColor:'#302723',borderRadius:4},
+          {label:'Con kit',data:ATL.map(a=>a.salto_max),backgroundColor:'#5CB8E4CC',borderRadius:4}
+        ]
+      },
+      options:{...chartDefaults,responsive:true,maintainAspectRatio:false}
+    });
+
+    new Chart(document.getElementById('atletasVelChart'),{
+      type:'bar',
+      data:{
+        labels:ATL.map(a=>a.nombre),
+        datasets:[{label:'Vel. crucero (km/h)',data:ATL.map(a=>a.vel_crucero),backgroundColor:ATL.map((_,i)=>clr[i]+'CC'),borderRadius:4}]
+      },
+      options:{...chartDefaults,responsive:true,maintainAspectRatio:false,plugins:{...chartDefaults.plugins,legend:{display:false}}}
+    });
+// ═════════════════════════════════════
+    //  REVIEWS
+    // ═════════════════════════════════════
+    const revsQ2 = K.reviews_total_q2;
+    const revsQ1 = K.reviews_q1;
+    
+    // Calculamos el delta real de Q2 vs Q1
+    const deltaRevs = revsQ1 > 0 ? ((revsQ2 - revsQ1) / revsQ1 * 100).toFixed(1) : 0;
+
+    document.getElementById('reviews-subtitle').textContent=
+      `${fmt(revsQ2)} reviews Q2 · Rating promedio ${K.rating_promedio}★ · ${K.reviews_respondidas_pct}% respondidas`;
+      
+// Buscamos cuál fue el tema con el número más alto en nuestro diccionario real
+    const topTema = Object.keys(K.temas_reviews).reduce((a, b) => K.temas_reviews[a] > K.temas_reviews[b] ? a : b);
+
+    document.getElementById('reviews-metrics').innerHTML=
+      metricCard('Reviews Q2', fmt(revsQ2), 'total recibidas', deltaRevs, 'vs Q1')+
+      metricCard('Rating promedio', K.rating_promedio, '★ sobre 5', null, '')+
+      metricCard('Respondidas', K.reviews_respondidas_pct+'%', 'del total Q2', null, '')+
+      // Mostramos el tema ganador real
+      metricCard('Tema principal', '"'+topTema+'"', 'más mencionado', null, '');
+    document.getElementById('reviews-respondidas-tag').textContent=K.reviews_respondidas_pct+'% respondidas';
+
+    // 3. Filtrar el array para usar SOLO las reviews de Q2 2025
+    const reviewsQ2Array = REV.filter(r => 
+      r.fecha.startsWith('2025-04') || 
+      r.fecha.startsWith('2025-05') || 
+      r.fecha.startsWith('2025-06')
+    );
+
+    // Contamos las estrellas de esas reviews del trimestre
+    const conteo = {1:0, 2:0, 3:0, 4:0, 5:0};
+    reviewsQ2Array.forEach(r => conteo[r.rating]++);
+
+    new Chart(document.getElementById('ratingsChart'),{
+      type:'bar',
+      data:{
+        labels:['5★','4★','3★','2★','1★'],
+        datasets:[{
+          label:'Cantidad de reviews', // Ahora mostramos la cantidad real, no porcentajes
+          data:['5','4','3','2','1'].map(k => conteo[k]), // Pasamos el número crudo
+          backgroundColor:['#4A9B71','#5CB8E4','#D4C3A3','#E8B86D','#C95A5A'],
+          borderRadius:4
+        }]
+      },
+      options:{...chartDefaults,responsive:true,maintainAspectRatio:false,plugins:{...chartDefaults.plugins,legend:{display:false}}}
+    });
+
+    const temas=K.temas_reviews;
+    const maxTema=Math.max(...Object.values(temas));
+    document.getElementById('temas-bars').innerHTML=
+      Object.entries(temas).sort((a,b)=>b[1]-a[1]).map(([t,v])=>
+        barRow(t, v/maxTema*100, fmt(v)) // <--- CAMBIO AQUÍ
+      ).join('');
+// 4. Muestra de Reviews interactiva (Filtros por estrellas)
+    const reviewsContainer = document.getElementById('reviews-list');
+    
+    // Inyectamos la botonera de filtros justo arriba de la lista si no existe aún
+    if (!document.getElementById('star-filters')) {
+      reviewsContainer.insertAdjacentHTML('beforebegin', `
+        <div id="star-filters" style="display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:4px;">
+          <button class="btn btn-primary filter-btn" data-star="all">Todas</button>
+          <button class="btn filter-btn" data-star="5">5★</button>
+          <button class="btn filter-btn" data-star="4">4★</button>
+          <button class="btn filter-btn" data-star="3">3★</button>
+          <button class="btn filter-btn" data-star="2">2★</button>
+          <button class="btn filter-btn" data-star="1">1★</button>
+        </div>
+      `);
+    }
+
+    // Función que pinta las reviews según lo que toques
+    function renderReviews(filtro) {
+      // 1. Pintar el botón activo
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        if (btn.dataset.star === filtro) {
+          btn.classList.add('btn-primary');
+        } else {
+          btn.classList.remove('btn-primary');
+        }
+      });
+
+      // 2. Filtrar la base de datos
+      let filtradas = [...REV];
+      if (filtro !== 'all') {
+        filtradas = filtradas.filter(r => r.rating === parseInt(filtro));
+      }
+
+      // 3. Ordenar las filtradas por fecha y cortar a 15
+      const revsMuestra = filtradas.sort((a,b) => b.fecha.localeCompare(a.fecha)).slice(0, 15);
+
+      // 4. Si no hay resultados (ej. nadie te dio 1 estrella)
+      if (revsMuestra.length === 0) {
+        reviewsContainer.innerHTML = '<div style="font-size:13px;color:var(--text3);padding:10px;text-align:center;">No hay reviews con esta calificación.</div>';
+        return;
+      }
+
+      // 5. Renderizar el HTML
+      reviewsContainer.innerHTML = revsMuestra.map(r => {
+        const stars = '★'.repeat(r.rating) + '☆'.repeat(5-r.rating);
+        return `<div class="review-card">
+          <div class="review-stars">${stars}</div>
+          <div class="review-text">"${r.texto}"</div>
+          <div class="review-meta">
+            <span>${r.cliente}</span><div class="review-meta-dot"></div>
+            <span>${r.especie}</span><div class="review-meta-dot"></div>
+            <span>${r.producto_nombre}</span><div class="review-meta-dot"></div>
+            <span>${r.fecha}</span>
+            ${r.respondida ? '<span style="color:var(--green);margin-left:auto;">✓ Respondida</span>' : ''}
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    // Asignar el clic a los botones
+    document.getElementById('star-filters').addEventListener('click', (e) => {
+      if (e.target.classList.contains('filter-btn')) {
+        renderReviews(e.target.dataset.star);
+      }
+    });
+
+    // Arrancamos el dashboard mostrando "Todas"
+    renderReviews('all');
+    // ═════════════════════════════════════
+    //  MERCADO POR ESPECIE
+    // ═════════════════════════════════════
+    const REGIONES=['Outback Central','Queensland','Victoria','Nueva Gales del Sur'];
+    const ESPECIES_LIST=['Canguro rojo','Canguro gris','Wallaby','Canguro arbóreo'];
+    const regionEspecieData=ESPECIES_LIST.map((esp,ei)=>({
+      label:esp,
+      data:REGIONES.map(reg=>{
+        const found=VR.find(v=>v.region===reg&&v.especie===esp);
+        return found?found.revenue:0;
+      }),
+      backgroundColor: ESPECIE_COLORS[esp],borderRadius:4
+    }));
+    new Chart(document.getElementById('regionEspecieChart'),{
+      type:'bar',
+      data:{labels:REGIONES,datasets:regionEspecieData},
+      options:{...chartDefaults,responsive:true,maintainAspectRatio:false,
+        scales:{...chartDefaults.scales,x:{...chartDefaults.scales.x,stacked:true},y:{...chartDefaults.scales.y,stacked:true}},
+        plugins:{...chartDefaults.plugins,legend:{labels:{color:'#B0A89F',font:{size:10}}}}}
+    });
+
+    const maxEspRevS=Math.max(...ESP.map(e=>e.revenue_q2));
+    document.getElementById('species-ranking-list').innerHTML=ESP.sort((a,b)=>b.revenue_q2-a.revenue_q2).map((e,i)=>
+      `<div class="species-row">
+        <div class="species-info">
+          <div class="species-name">${['🥇','🥈','🥉','4️⃣'][i]} ${e.especie}</div>
+          <div class="species-sub">${e.region_principal} · Ticket $${e.ticket_promedio}</div>
+        </div>
+        <div style="text-align:right;">
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;">${fmtAUD(e.revenue_q2)}</div>
+          <span class="pill ${e.estado==='Líder'?'pill-up':e.estado==='Emergente'?'pill-new':e.estado==='En riesgo'?'pill-down':'pill-warn'}">${e.estado}</span>
+        </div>
+      </div>`
+    ).join('');
+    document.getElementById('species-note').textContent=
+      `El canguro arbóreo tiene el ticket promedio más alto ($${ESP.find(e=>e.especie==='Canguro arbóreo')?.ticket_promedio}) pero el volumen más bajo. Su anatomía requiere productos específicos actualmente no en el catálogo.`;
+
+    // Preferencias producto por especie (from PREF_ESPECIE del json)
+    // Usamos datos de ventas_por_region + especies
+    document.getElementById('pref-producto-especie').innerHTML=ESP.map(e=>`
+      <div style="padding:10px 0;border-bottom:1px solid var(--border);">
+        <div style="font-size:13px;font-weight:600;margin-bottom:8px;">${e.especie}</div>
+        ${barRow(e.producto_favorito,e.pct_producto_favorito,e.pct_producto_favorito+'%')}
+      </div>`).join('');
+
+    // Devoluciones badge
+    const highDevProds=DEV.filter(d=>d.tasa_devolucion>30);
+    document.getElementById('badge-devoluciones').textContent=highDevProds.length;
+
+  })
+  .catch(err=>{
+    console.error('Error cargando kangaFit.json:',err);
+    document.body.insertAdjacentHTML('afterbegin',
+      `<div style="position:fixed;top:52px;left:220px;right:0;padding:20px;background:#C95A5A22;color:#C95A5A;font-size:13px;border-bottom:1px solid #C95A5A44;z-index:99">
+        ⚠ No se pudo cargar <strong>kangaFit.json</strong>. Asegurate de que el archivo está en la misma carpeta que este HTML y de abrirlo a través de un servidor local (no con file://).
+      </div>`
+    );
+  });
+</script>
+</body>
+</html>
