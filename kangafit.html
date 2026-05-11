@@ -34,6 +34,25 @@
 body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
 h1,h2,h3,h4,h5,h6{font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-top:0;color:var(--text);}
 
+/* ── ESTILOS PARA IMPRESIÓN (PDF) ── */
+@media print {
+  .sidebar, .topbar, .page-actions, #star-filters { 
+    display: none !important; 
+  }
+  .app { 
+    padding-top: 0 !important; 
+  }
+  .main { 
+    margin-left: 0 !important; 
+  }
+  /* Forzamos a que el navegador imprima los colores de fondo oscuros */
+  body { 
+    -webkit-print-color-adjust: exact; 
+    print-color-adjust: exact; 
+    background: var(--bg);
+  }
+}
+
 /* ── TOPBAR ── */
 .topbar{position:fixed;top:0;left:0;right:0;height:52px;background:rgba(10,10,10,.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;z-index:100;}
 .logo{display:flex;align-items:center;gap:10px;width:var(--sidebar-w);flex-shrink:0;}
@@ -199,16 +218,20 @@ h1,h2,h3,h4,h5,h6{font-family:'Barlow Condensed',sans-serif;text-transform:upper
 <body>
 
 <div class="topbar">
-  <div class="logo">
-    <div class="logo-mark">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M12 2C9 2 6 5.5 6 9c0 2.5 1.2 4.8 3 6.2L8 19h8l-1-3.8C16.8 13.8 18 11.5 18 9c0-3.5-3-7-6-7z"/><ellipse cx="12" cy="21" rx="3" ry="1.5"/></svg>
-    </div>
-    <div>
+<div class="logo">
+    <img src="mi_logo.png" alt="Logo KangaFit" style="width: 45px; height: 45px; border-radius: 7px; object-fit: contain;">
+    
+    <div style="display: flex; flex-direction: column; justify-content: center;">
       <div class="logo-text">KangaFit</div>
       <div class="logo-sub">Analytics Hub</div>
     </div>
   </div>
-  <div class="topbar-right">
+<div class="topbar-right">
+    <button class="btn btn-primary" onclick="window.print()" style="padding: 6px 14px; font-size: 12px; display: flex; align-items: center; gap: 6px; margin-right: 8px;">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+      Exportar PDF
+    </button>
+    
     <div class="quarter-badge" id="topbar-quarter">Q2 2025 · Outback</div>
     <div class="notif">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
@@ -269,15 +292,14 @@ h1,h2,h3,h4,h5,h6{font-family:'Barlow Condensed',sans-serif;text-transform:upper
   <div class="main">
 
     <!-- ===== OVERVIEW ===== -->
-    <div class="page active" id="page-overview">
+<div class="page active" id="page-overview">
       <div class="page-header">
         <div>
           <div class="page-title">Overview — Q2 2025</div>
           <div class="page-subtitle" id="overview-subtitle">Cargando datos...</div>
         </div>
-        <div class="page-actions">
-          <button class="btn">Exportar</button>
-          <button class="btn btn-primary">Informe Q2</button>
+      <div class="page-actions">
+          <button class="btn" id="btn-exportar">Exportar CSV</button>
         </div>
       </div>
       <div class="metrics" id="overview-metrics"></div>
@@ -326,26 +348,32 @@ h1,h2,h3,h4,h5,h6{font-family:'Barlow Condensed',sans-serif;text-transform:upper
     </div>
 
     <!-- ===== REVENUE ===== -->
-    <div class="page" id="page-revenue">
-      <div class="page-header">
+<div class="page" id="page-revenue">
+      <div class="page-header" style="flex-wrap: wrap; gap: 16px;">
         <div>
           <div class="page-title">Revenue</div>
           <div class="page-subtitle" id="revenue-subtitle">Historial completo · Todos los canales</div>
         </div>
+        <div style="display:flex; gap: 10px; align-items: center; background: var(--bg3); padding: 8px 14px; border-radius: 8px; border: 1px solid var(--border);">
+          <span style="font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; font-weight: bold;">Período:</span>
+          <input type="month" id="filtro-inicio" value="2024-01" style="background: var(--bg4); border: 1px solid var(--border2); color: var(--text); padding: 5px 10px; border-radius: 4px; font-family: 'Barlow', sans-serif; font-size: 13px; color-scheme: dark; outline: none;">
+          <span style="color: var(--text3); font-size: 12px;">hasta</span>
+          <input type="month" id="filtro-fin" value="2025-06" style="background: var(--bg4); border: 1px solid var(--border2); color: var(--text); padding: 5px 10px; border-radius: 4px; font-family: 'Barlow', sans-serif; font-size: 13px; color-scheme: dark; outline: none;">
+          <button class="btn btn-primary" id="btn-filtrar-revenue" style="padding: 5px 14px;">Filtrar</button>
+        </div>
       </div>
       <div class="grid-3r">
         <div class="card">
-          <div class="card-title" style="margin-bottom:12px;">Revenue Q2 2025</div>
+          <div class="card-title" style="margin-bottom:12px;">Total del Período</div>
           <div class="revenue-big" id="rev-q2-big"></div>
           <div class="revenue-sub" id="rev-q2-sub"></div>
           <div class="divider"></div>
-          <div class="card-title" style="margin-bottom:12px;">Por canal</div>
+          <div class="card-title" style="margin-bottom:12px;">Por canal (Proyección)</div>
           <div id="rev-canal-list"></div>
         </div>
         <div class="card">
           <div class="card-header">
             <div class="card-title">Revenue mensual — top 5 productos</div>
-            <span class="card-tag tag-orange">2024 – 2025</span>
           </div>
           <div class="chart-wrap" style="height:280px;">
             <canvas id="revenueChart"></canvas>
@@ -354,18 +382,17 @@ h1,h2,h3,h4,h5,h6{font-family:'Barlow Condensed',sans-serif;text-transform:upper
       </div>
       <div class="grid-2">
         <div class="card">
-          <div class="card-header"><div class="card-title">Revenue por producto Q2 2025</div></div>
+          <div class="card-header"><div class="card-title">Revenue por producto</div></div>
           <div class="chart-wrap" style="height:220px;">
             <canvas id="productRevenueChart"></canvas>
           </div>
         </div>
         <div class="card">
-          <div class="card-header"><div class="card-title">Revenue por especie — Q2 2025</div></div>
+          <div class="card-header"><div class="card-title">Revenue por especie</div></div>
           <div id="rev-especie-list"></div>
         </div>
       </div>
     </div>
-
     <!-- ===== PRODUCTOS ===== -->
     <div class="page" id="page-productos">
       <div class="page-header">
@@ -417,7 +444,10 @@ h1,h2,h3,h4,h5,h6{font-family:'Barlow Condensed',sans-serif;text-transform:upper
           <div id="dev-tasa-bars"></div>
         </div>
         <div class="card">
-          <div class="card-header"><div class="card-title">Motivos de devolución consolidados</div></div>
+          <div class="card-header">
+            <div class="card-title" id="motivos-card-title">Motivos de devolución consolidados</div>
+            <button class="btn" id="btn-reset-motivos" style="display:none; padding: 4px 10px; font-size: 10px;">Ver todos</button>
+          </div>
           <div class="chart-wrap" style="height:220px;"><canvas id="motivosChart"></canvas></div>
         </div>
       </div>
@@ -541,26 +571,7 @@ h1,h2,h3,h4,h5,h6{font-family:'Barlow Condensed',sans-serif;text-transform:upper
             <div class="card-title">Oportunidades de expansión</div>
             <span class="card-tag tag-blue">Roadmap 2026</span>
           </div>
-          <div class="insight-row">
-            <div class="insight-num">01</div>
-            <div>
-              <div class="insight-title">Línea Wallaby — lanzamiento Q4 2025</div>
-              <div class="insight-text">El segmento wallaby creció más del 40% en Q2 con el catálogo estándar, sin productos específicos. Una línea adaptada a su anatomía tiene potencial estimado de $380k en el primer año.</div>
-            </div>
-          </div>
-          <div class="insight-row">
-            <div class="insight-num">02</div>
-            <div>
-              <div class="insight-title">Colección Tree Kangaroo — piloto Q3 2025</div>
-              <div class="insight-text">El canguro arbóreo requiere un corte radicalmente diferente. Ticket alto y comunidad fiel. Piloto de 3 SKUs antes de comprometer producción full.</div>
-            </div>
-          </div>
-          <div class="insight-row">
-            <div class="insight-num">03</div>
-            <div>
-              <div class="insight-title">Categoría Joey — ropa deportiva para crías</div>
-              <div class="insight-text">El 34% de compradores adultos consulta sobre productos para joeys. Demanda no atendida. Requiere investigación de materiales hipoalergénicos.</div>
-            </div>
+              <div id="dynamic-insights"></div>
           </div>
         </div>
       </div>
@@ -589,8 +600,54 @@ const ESPECIE_COLORS = {
 const chartDefaults = {
   color:'#B0A89F',
   borderColor:'rgba(212,195,163,0.08)',
-  plugins:{legend:{labels:{color:'#B0A89F',font:{family:"'Barlow',sans-serif",size:11}}},tooltip:{backgroundColor:'#1A1513',borderColor:'rgba(212,195,163,0.2)',borderWidth:1,titleColor:'#F5F3F0',bodyColor:'#B0A89F'}},
-  scales:{x:{ticks:{color:'#7A726A',font:{size:10}},grid:{color:'rgba(212,195,163,0.05)'}},y:{ticks:{color:'#7A726A',font:{size:10}},grid:{color:'rgba(212,195,163,0.05)'}}}
+  plugins:{
+    legend:{labels:{color:'#B0A89F',font:{family:"'Barlow',sans-serif",size:11}}},
+    tooltip:{backgroundColor:'#1A1513',borderColor:'rgba(212,195,163,0.2)',borderWidth:1,titleColor:'#F5F3F0',bodyColor:'#B0A89F'}
+  },
+  scales:{
+    x:{ticks:{color:'#7A726A',font:{size:10}},grid:{color:'rgba(212,195,163,0.05)'}},
+    y:{ticks:{color:'#7A726A',font:{size:10}},grid:{color:'rgba(212,195,163,0.05)'}}
+  },
+  // ── MAGIA DEL EFECTO SPOTLIGHT (HOVER) ──
+  onHover: (event, activeElements, chart) => {
+    // 1. Guardamos una copia de los colores originales la primera vez
+    chart.data.datasets.forEach(dataset => {
+      if (!dataset._origBg) dataset._origBg = dataset.backgroundColor;
+      if (!dataset._origBorder) dataset._origBorder = dataset.borderColor;
+    });
+
+    // 2. Si el mouse está sobre algún elemento
+    if (activeElements.length > 0) {
+      const activeDatasetIndex = activeElements[0].datasetIndex;
+      const activeIndex = activeElements[0].index;
+      const dimColor = 'rgba(122, 114, 106, 0.15)'; // Un gris apagado sutil
+
+      chart.data.datasets.forEach((dataset, dIdx) => {
+        // Caso A: El gráfico usa un Array de colores (Barras o Torta)
+        if (Array.isArray(dataset._origBg)) {
+          dataset.backgroundColor = dataset._origBg.map((color, i) =>
+            (dIdx === activeDatasetIndex && i === activeIndex) ? color : dimColor
+          );
+        } 
+        // Caso B: El gráfico usa un solo color para toda la línea/dataset (Líneas o Áreas apiladas)
+        else {
+          dataset.backgroundColor = (dIdx === activeDatasetIndex) ? dataset._origBg : dimColor;
+          if (dataset._origBorder) {
+            dataset.borderColor = (dIdx === activeDatasetIndex) ? dataset._origBorder : dimColor;
+          }
+        }
+      });
+      chart.update();
+    } 
+    // 3. Si sacamos el mouse, restauramos todos los colores
+    else {
+      chart.data.datasets.forEach(dataset => {
+        if (dataset._origBg) dataset.backgroundColor = dataset._origBg;
+        if (dataset._origBorder) dataset.borderColor = dataset._origBorder;
+      });
+      chart.update();
+    }
+  }
 };
 
 function metricCard(label,value,unit,delta,deltaLabel){
@@ -605,14 +662,14 @@ function metricCard(label,value,unit,delta,deltaLabel){
 }
 
 function barRow(label,pct,val,colorClassOrValue='bar-fill-accent'){
-  // Si el valor no empieza con 'bar-fill-', asumimos que es un color hexadecimal o var CSS
   let isColorValue = !colorClassOrValue.startsWith('bar-fill-');
-  let fillStyle = isColorValue ? `style="background:${colorClassOrValue}"` : '';
+  // Ahora metemos el color directamente en la misma variable del estilo
+  let customBg = isColorValue ? `background:${colorClassOrValue};` : '';
   let fillClass = isColorValue ? '' : colorClassOrValue;
 
   return `<div class="bar-row">
     <div class="bar-label">${label}</div>
-    <div class="bar-track"><div class="bar-fill ${fillClass}" style="width:${Math.min(pct,100)}%" ${fillStyle}></div></div>
+    <div class="bar-track"><div class="bar-fill ${fillClass}" style="width:${Math.min(pct,100)}%; ${customBg}"></div></div>
     <div class="bar-val">${val}</div>
   </div>`;
 }
@@ -747,55 +804,112 @@ fetch('KangaFit.json')
     barRow(esp,nps/maxNPS*100,nps+' NPS', ESPECIE_COLORS[esp]) 
   ).join('');
 
+// ═════════════════════════════════════
+    //  REVENUE PAGE (CON FILTRO DINÁMICO)
     // ═════════════════════════════════════
-    //  REVENUE PAGE
-    // ═════════════════════════════════════
-    document.getElementById('revenue-subtitle').textContent=
-      `Histórico completo · Revenue total: ${fmtAUD(K.revenue_historico)}`;
-    document.getElementById('rev-q2-big').textContent=fmtAUD(revQ2);
-    document.getElementById('rev-q2-sub').innerHTML=
-      `<span style="color:var(--green)">+${K.delta_q2_vs_q1_pct}%</span> vs Q1 2025 &nbsp;|&nbsp; `+
-      `<span style="color:var(--green)">+${K.delta_q2_vs_q2_2024_pct}%</span> vs Q2 2024`;
-    document.getElementById('rev-canal-list').innerHTML=
-      Object.entries(K.canal_revenue).map(([canal,rev],i)=>`
-        <div class="breakdown-row">
-          <div class="breakdown-color" style="background:${canalColors[i]}"></div>
-          <div class="breakdown-label">${canal}</div>
-          <div class="breakdown-val">${fmtAUD(rev)}</div>
-          <div class="breakdown-pct">${(rev/totalCanal*100).toFixed(0)}%</div>
-        </div>`).join('');
+    // 1. Guardamos los gráficos en variables globales para poder destruirlos
+    let revenueLineChart = null;
+    let revenueBarChart = null;
 
-    // Revenue chart (line) — top 5 products monthly 2024-2025
-    const top5ids=Object.entries(prodRevQ2).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([id])=>id);
-    const chartLabels=sortedMonths.map(k=>{const[y,m]=k.split('-');return MONTHS[+m-1]+" '"+y.slice(2);});
-    const datasets=top5ids.map((id,i)=>({
-      label:prodInfo[id]?prodInfo[id].nombre:id,
-      data:sortedMonths.map(k=>(monthly2425[k]||{})[id]||null),
-      borderColor:clr[i],backgroundColor:clr[i]+'22',
-      borderWidth:2,pointRadius:2,tension:.4,fill:false,spanGaps:true
-    }));
-    new Chart(document.getElementById('revenueChart'),{
-      type:'line',data:{labels:chartLabels,datasets},
-      options:{...chartDefaults,responsive:true,maintainAspectRatio:false}
+    // 2. Función principal que recalcula TODO según las fechas
+    function actualizarRevenue(startStr, endStr) {
+      // Convertimos "2024-01" a número 202401 para comparar fácil
+      const startVal = parseInt(startStr.replace('-', ''));
+      const endVal = parseInt(endStr.replace('-', ''));
+
+      // Filtramos las ventas mensuales reales
+      const vmFiltrado = VM.filter(v => {
+        const val = v.anio * 100 + v.mes;
+        return val >= startVal && val <= endVal;
+      });
+
+      // Sumadores
+      let revTotal = 0;
+      const prodRev = {};
+      const espRev = {};
+      const monthly = {}; 
+
+      vmFiltrado.forEach(v => {
+        revTotal += v.revenue;
+        prodRev[v.producto_id] = (prodRev[v.producto_id] || 0) + v.revenue;
+        espRev[v.especie] = (espRev[v.especie] || 0) + v.revenue;
+
+        const key = v.anio + '-' + String(v.mes).padStart(2, '0');
+        if(!monthly[key]) monthly[key] = {};
+        monthly[key][v.producto_id] = (monthly[key][v.producto_id] || 0) + v.revenue;
+      });
+
+      // --- TEXTOS GLOBALES ---
+      document.getElementById('revenue-subtitle').textContent = `Filtrado desde ${startStr} hasta ${endStr}`;
+      document.getElementById('rev-q2-big').textContent = fmtAUD(revTotal);
+      document.getElementById('rev-q2-sub').innerHTML = `<span style="color:var(--text3)">Total recaudado en los meses seleccionados</span>`;
+
+      // --- LISTA CANALES (Proyección) ---
+      const canalColors=['#5CB8E4','#4A9B71','#D4C3A3','#C95A5A'];
+      document.getElementById('rev-canal-list').innerHTML = 
+        Object.entries(K.canal_revenue).map(([canal, revFijo], i) => {
+          const pctReal = revFijo / K.revenue_total_q2; // Sacamos el porcentaje histórico
+          const estimado = revTotal * pctReal; // Se lo aplicamos a nuestro filtro
+          return `<div class="breakdown-row">
+            <div class="breakdown-color" style="background:${canalColors[i]}"></div>
+            <div class="breakdown-label">${canal}</div>
+            <div class="breakdown-val">${fmtAUD(estimado)}</div>
+            <div class="breakdown-pct">${(pctReal*100).toFixed(0)}%</div>
+          </div>`;
+        }).join('');
+
+      // --- GRÁFICO DE LÍNEAS (Evolución) ---
+      const sortedMonths = Object.keys(monthly).sort();
+      const top5ids = Object.entries(prodRev).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([id])=>id);
+      const chartLabels = sortedMonths.map(k => { const [y,m] = k.split('-'); return MONTHS[+m-1] + " '" + y.slice(2); });
+      const datasetsLine = top5ids.map((id,i)=>({
+        label: prodInfo[id] ? prodInfo[id].nombre : id,
+        data: sortedMonths.map(k=>(monthly[k]||{})[id]||null),
+        borderColor: clr[i], backgroundColor: clr[i]+'22',
+        borderWidth: 2, pointRadius: 2, tension: .4, fill: false, spanGaps: true
+      }));
+
+      if (revenueLineChart) revenueLineChart.destroy(); // MATAMOS EL VIEJO
+      revenueLineChart = new Chart(document.getElementById('revenueChart'), {
+        type: 'line', data: { labels: chartLabels, datasets: datasetsLine },
+        options: { ...chartDefaults, responsive: true, maintainAspectRatio: false }
+      });
+
+      // --- GRÁFICO DE BARRAS (Top Productos) ---
+      const prSorted = Object.entries(prodRev).sort((a,b)=>b[1]-a[1]);
+      if (revenueBarChart) revenueBarChart.destroy(); // MATAMOS EL VIEJO
+      revenueBarChart = new Chart(document.getElementById('productRevenueChart'), {
+        type: 'bar',
+        data: {
+          labels: prSorted.map(([id])=>prodInfo[id]?prodInfo[id].nombre:id),
+          datasets: [{ label: 'Revenue del Período', data: prSorted.map(([,v])=>v), backgroundColor: prSorted.map((_,i)=>clr[i]+'CC'), borderRadius: 4 }]
+        },
+        options: { ...chartDefaults, responsive: true, maintainAspectRatio: false, plugins: { ...chartDefaults.plugins, legend: { display: false } } }
+      });
+
+      // --- BARRAS POR ESPECIE ---
+      const maxEspRev = Math.max(...Object.values(espRev), 1);
+      document.getElementById('rev-especie-list').innerHTML = Object.entries(espRev)
+        .sort((a,b)=>b[1]-a[1])
+        .map(([esp, rev]) => barRow(esp, rev/maxEspRev*100, fmtAUD(rev), ESPECIE_COLORS[esp]) )
+        .join('');
+    }
+
+    // 3. Le damos vida al botón
+    document.getElementById('btn-filtrar-revenue').addEventListener('click', () => {
+      const inicio = document.getElementById('filtro-inicio').value;
+      const fin = document.getElementById('filtro-fin').value;
+      
+      // Chequeo de seguridad para que el usuario no ponga fechas invertidas
+      if(inicio > fin) {
+        alert("La fecha de inicio no puede ser mayor a la fecha de fin.");
+        return;
+      }
+      actualizarRevenue(inicio, fin);
     });
 
-    // Product Revenue Bar Q2
-    const prSorted=Object.entries(prodRevQ2).sort((a,b)=>b[1]-a[1]);
-    new Chart(document.getElementById('productRevenueChart'),{
-      type:'bar',
-      data:{
-        labels:prSorted.map(([id])=>prodInfo[id]?prodInfo[id].nombre:id),
-        datasets:[{label:'Revenue Q2',data:prSorted.map(([,v])=>v),backgroundColor:prSorted.map((_,i)=>clr[i]+'CC'),borderRadius:4}]
-      },
-      options:{...chartDefaults,responsive:true,maintainAspectRatio:false,plugins:{...chartDefaults.plugins,legend:{display:false}}}
-    });
-
-    // Revenue per especie
-    const maxEspRev=Math.max(...ESP.map(e=>e.revenue_q2));
-    document.getElementById('rev-especie-list').innerHTML=ESP.map(e=>
-      // CAMBIO: Pasamos el color real de la especie
-      barRow(e.especie,e.revenue_q2/maxEspRev*100,fmtAUD(e.revenue_q2), ESPECIE_COLORS[e.especie])
-    ).join('');
+    // 4. Lo ejecutamos apenas carga la página con los valores por defecto (2024 al 2025)
+    actualizarRevenue('2024-01', '2025-06');
 
     // ═════════════════════════════════════
     //  PRODUCTOS PAGE
@@ -861,44 +975,134 @@ const totalDev=DEV.reduce((s,d)=>s+d.unidades_devueltas,0);
 
     document.getElementById('dev-subtitle').textContent=
       `${totalDev} unidades devueltas · $${fmt(totalCostoDev)} AUD en costos`;
-    document.getElementById('dev-metrics').innerHTML=
-      metricCard('Total devueltas',fmt(totalDev),'unidades Q2',null,'')+
-      metricCard('Tasa global',(totalDev/totalVendidasDev*100).toFixed(1)+'%','de lo vendido',(K.tasa_devolucion_q2-K.tasa_devolucion_q1).toFixed(1),'vs Q1')+
-      metricCard('Costo total',fmtAUD(totalCostoDev),'AUD en devoluciones',null,'')+
-      // Ahora lee dinámicamente el ID y el nombre del producto con más devoluciones
-      metricCard('Producto crítico', peorProducto.producto_id, peorProducto.producto_nombre, null, '');
-    const maxDev=devSorted[0].tasa_devolucion;
-    document.getElementById('dev-tasa-bars').innerHTML=devSorted.map(d=>{
-      const cls=d.tasa_devolucion>30?'bar-fill-red':d.tasa_devolucion>20?'bar-fill-accent':'bar-fill-green';
-      const pi=PROD.find(p=>p.id===d.producto_id);
-      return barRow((pi?pi.emoji+' ':'')+d.producto_nombre,d.tasa_devolucion/maxDev*100,d.tasa_devolucion+'%',cls);
+// Dibujamos las barras de tasa de devolución (AHORA SON CLICKEABLES)
+    const maxDev = devSorted[0].tasa_devolucion;
+    document.getElementById('dev-tasa-bars').innerHTML = devSorted.map(d => {
+      const cls = d.tasa_devolucion > 30 ? 'bar-fill-red' : d.tasa_devolucion > 20 ? 'bar-fill-accent' : 'bar-fill-green';
+      const pi = PROD.find(p => p.id === d.producto_id);
+      const barHtml = barRow((pi ? pi.emoji + ' ' : '') + d.producto_nombre, d.tasa_devolucion / maxDev * 100, d.tasa_devolucion + '%', cls);
+      // Envolvemos la barra en un div clickeable con un efecto visual (hover)
+      return `<div class="prod-dev-row" data-pid="${d.producto_id}" style="cursor:pointer; padding:2px; border-radius:4px; transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
+                ${barHtml}
+              </div>`;
     }).join('');
 
-    // Motivos consolidados
-    const motivosTotales={};
-    DEV.forEach(d=>Object.entries(d.motivos||{}).forEach(([m,c])=>{
-      motivosTotales[m]=(motivosTotales[m]||0)+c;
-    }));
-    const motivosSorted=Object.entries(motivosTotales).sort((a,b)=>b[1]-a[1]);
-    new Chart(document.getElementById('motivosChart'),{
-      type:'bar',
-      data:{
-        labels:motivosSorted.map(([m])=>m),
-        datasets:[{label:'Casos',data:motivosSorted.map(([,v])=>v),backgroundColor:motivosSorted.map((_,i)=>clr[i]+'CC'),borderRadius:4}]
-      },
-      options:{...chartDefaults,indexAxis:'y',responsive:true,maintainAspectRatio:false,
-        plugins:{...chartDefaults.plugins,legend:{display:false}},
-        scales:{...chartDefaults.scales,x:{...chartDefaults.scales.x},y:{ticks:{color:'#7A726A',font:{size:9}},grid:{color:'rgba(212,195,163,0.05)'}}}}
+    // --- LÓGICA DEL GRÁFICO DINÁMICO DE MOTIVOS ---
+    let motivosChartInstance = null;
+
+    function renderMotivosChart(productoId = null) {
+      let title = "Motivos de devolución consolidados";
+      let motivosAContar = {};
+      let totalParaPorcentaje = 0;
+
+      if (productoId) {
+        // MODO ESPECÍFICO: Filtramos solo el producto clickeado
+        const prodData = DEV.find(d => d.producto_id === productoId);
+        title = `Motivos: ${prodData.producto_nombre}`;
+        motivosAContar = prodData.motivos;
+        totalParaPorcentaje = prodData.unidades_devueltas;
+        document.getElementById('btn-reset-motivos').style.display = 'block'; // Mostramos el botón de volver
+      } else {
+        // MODO GLOBAL: Sumamos todos
+        title = "Motivos de devolución consolidados (Todos)";
+        DEV.forEach(d => {
+          totalParaPorcentaje += d.unidades_devueltas;
+          Object.entries(d.motivos || {}).forEach(([m, c]) => {
+            motivosAContar[m] = (motivosAContar[m] || 0) + c;
+          });
+        });
+        document.getElementById('btn-reset-motivos').style.display = 'none'; // Ocultamos el botón
+      }
+
+      // Ordenamos de mayor a menor y sacamos los que tienen 0
+const motivosSorted = Object.entries(motivosAContar)
+                            .filter(([, v]) => v > 0)
+                            .sort((a, b) => b[1] - a[1]);
+
+      const labels = motivosSorted.map(([m]) => m);
+      const data = motivosSorted.map(([, v]) => v);
+      // Calculamos el porcentaje matemático exacto
+      const percentages = data.map(v => totalParaPorcentaje > 0 ? ((v / totalParaPorcentaje) * 100).toFixed(1) : 0);
+
+      document.getElementById('motivos-card-title').textContent = title;
+
+      if (motivosChartInstance) motivosChartInstance.destroy(); // Matamos el viejo
+
+      motivosChartInstance = new Chart(document.getElementById('motivosChart'), {
+        type: 'bar',
+        data: {
+          labels: labels,
+            datasets: [{
+            label: 'Casos',
+            data: percentages, 
+            backgroundColor: motivosSorted.map((_, i) => clr[i % clr.length] + 'CC'),
+            borderRadius: 4,
+            // --- ESTAS 3 LÍNEAS HACEN LAS BARRAS MÁS GRUESAS ---
+            barPercentage: 0.85,       // Qué porcentaje del espacio asignado usa la barra
+            categoryPercentage: 0.95,  // Qué porcentaje de la fila ocupa la categoría
+            maxBarThickness: 35        // Un tope para que no queden gigantes si hay solo 1 motivo
+          }]
+        },
+        options: {
+          ...chartDefaults,
+          indexAxis: 'y',
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            ...chartDefaults.plugins,
+            legend: { display: false },
+            tooltip: {
+              ...chartDefaults.plugins.tooltip,
+              callbacks: {
+                label: function(context) {
+                  // <--- CAMBIO 2: TOOLTIP MUESTRA NÚMERO ORIGINAL Y PORCENTAJE
+                  const idx = context.dataIndex;
+                  const rawCount = data[idx]; 
+                  return `${rawCount} unidades devueltas (${context.raw}%)`;
+                }
+              }
+            }
+          },
+          scales: {
+            ...chartDefaults.scales,
+            x: { 
+              ...chartDefaults.scales.x,
+              ticks: { 
+                color: '#7A726A', 
+                font: { size: 10 },
+                // <--- CAMBIO 3: AGREGAMOS EL SÍMBOLO "%" AL EJE X
+                callback: function(value) { return value + '%' } 
+              } 
+            },
+            y: { ticks: { color: '#7A726A', font: { size: 9 } }, grid: { color: 'rgba(212,195,163,0.05)' } }
+          }
+        }
+      });
+    }
+
+    // Dibujamos el global la primera vez
+    renderMotivosChart(null);
+
+    // Escuchamos los clics en la lista de la izquierda
+    document.querySelectorAll('.prod-dev-row').forEach(row => {
+      row.addEventListener('click', () => {
+        renderMotivosChart(row.dataset.pid);
+      });
     });
 
-    const devCostoSorted=[...DEV].sort((a,b)=>b.costo_devolucion-a.costo_devolucion);
-    const maxCosto=devCostoSorted[0].costo_devolucion;
-    document.getElementById('dev-costo-total-tag').textContent='Total '+fmtAUD(totalCostoDev);
-    document.getElementById('dev-costo-bars').innerHTML=devCostoSorted.map(d=>{
-      const pi=PROD.find(p=>p.id===d.producto_id);
-      return barRow((pi?pi.emoji+' ':'')+d.producto_nombre,d.costo_devolucion/maxCosto*100,fmtAUD(d.costo_devolucion),'bar-fill-red');
-    }).join('');
+    // Escuchamos el clic en el botón de "Ver todos"
+    document.getElementById('btn-reset-motivos').addEventListener('click', () => {
+      renderMotivosChart(null);
+    });
 
+    // Dibujamos los costos (esto estaba antes, lo dejamos igual)
+    const devCostoSorted = [...DEV].sort((a, b) => b.costo_devolucion - a.costo_devolucion);
+    const maxCosto = devCostoSorted[0].costo_devolucion;
+    document.getElementById('dev-costo-total-tag').textContent = 'Total ' + fmtAUD(totalCostoDev);
+    document.getElementById('dev-costo-bars').innerHTML = devCostoSorted.map(d => {
+      const pi = PROD.find(p => p.id === d.producto_id);
+      return barRow((pi ? pi.emoji + ' ' : '') + d.producto_nombre, d.costo_devolucion / maxCosto * 100, fmtAUD(d.costo_devolucion), 'bar-fill-red');
+    }).join('');
     // ═════════════════════════════════════
     //  ESPECIES / CLIENTES
     // ═════════════════════════════════════
@@ -1175,7 +1379,80 @@ document.getElementById('atletas-metrics').innerHTML=
     // Devoluciones badge
     const highDevProds=DEV.filter(d=>d.tasa_devolucion>30);
     document.getElementById('badge-devoluciones').textContent=highDevProds.length;
+// ═════════════════════════════════════
+    //  STORYTELLING AUTOMATIZADO (INSIGHTS)
+    // ═════════════════════════════════════
 
+    // 1. Cálculo real del Wallaby
+    const wallaby = ESP.find(e => e.especie === 'Wallaby');
+    const wallabyCrecimiento = wallaby ? wallaby.delta_q1_pct : 0;
+    
+    // 2. Cálculo real del Canguro Arbóreo
+    const arboreo = ESP.find(e => e.especie === 'Canguro arbóreo');
+    const arboreoTicket = arboreo ? fmtAUD(arboreo.ticket_promedio) : '$0';
+
+    // 3. Cálculo real de la demanda de Joeys en las reviews
+    const reviewsConJoey = REV.filter(r => r.texto.toLowerCase().includes('joey')).length;
+    const joeyPorcentaje = REV.length > 0 ? Math.round((reviewsConJoey / REV.length) * 100) : 0;
+
+    // Inyectamos el texto dinámico en el HTML
+    document.getElementById('dynamic-insights').innerHTML = `
+      <div class="insight-row">
+        <div class="insight-num">01</div>
+        <div>
+          <div class="insight-title">Línea Wallaby — lanzamiento Q4 2025</div>
+          <div class="insight-text">El segmento wallaby tuvo una variación del <strong>${wallabyCrecimiento > 0 ? '+' : ''}${wallabyCrecimiento}%</strong> en ventas este trimestre con el catálogo estándar. Una línea adaptada a su anatomía tiene potencial inmediato de conversión.</div>
+        </div>
+      </div>
+    <div class="insight-row">
+        <div class="insight-num">02</div>
+        <div>
+          <div class="insight-title">Colección Tree Kangaroo — piloto Q3 2025</div>
+          <div class="insight-text">El canguro arbóreo requiere un corte diferente. Presentan un ticket promedio estable de <strong>${arboreoTicket}</strong> y una comunidad muy fiel a la marca. Piloto de 3 SKUs antes de comprometer producción.</div>
+        </div>
+      </div>
+      </div>
+      <div class="insight-row">
+        <div class="insight-num">03</div>
+        <div>
+          <div class="insight-title">Categoría Joey — ropa deportiva para crías</div>
+          <div class="insight-text">El análisis de texto revela que el <strong>${joeyPorcentaje}%</strong> de todas las reseñas menciona productos o necesidades para "joeys" (crías). Demanda no atendida. Requiere investigación de materiales.</div>
+        </div>
+      </div>
+    `;
+    // ═════════════════════════════════════
+    //  EXPORTAR A CSV
+    // ═════════════════════════════════════
+    document.getElementById('btn-exportar').addEventListener('click', () => {
+      // 1. Armamos las cabeceras del Excel
+      let csvContent = "Producto,Categoria,Precio,Unidades Q2,Revenue Q2,Tasa Devolucion %\n";
+      
+      // 2. Recorremos los productos y agregamos los datos
+      prodsSorted.forEach(p => {
+        const d = devMap[p.id] || {};
+        const rev = prodRevQ2[p.id] || 0;
+        const uni = prodUniQ2[p.id] || 0;
+        const devRate = d.tasa_devolucion || 0;
+        
+        // Limpiamos nombres por si tienen comas
+        const nombreLimpio = p.nombre.replace(/,/g, ''); 
+        
+        // Sumamos la fila al texto del CSV
+        csvContent += `${nombreLimpio},${p.categoria},${p.precio},${uni},${rev},${devRate}\n`;
+      });
+
+      // 3. Creamos un archivo "fantasma" y forzamos la descarga
+      const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });      const link = document.createElement("a");
+      const url = URL.createObjectURL(blob);
+      
+      link.setAttribute("href", url);
+      link.setAttribute("download", "KangaFit_Metricas_Q2.csv");
+      link.style.visibility = 'hidden';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    });
   })
   .catch(err=>{
     console.error('Error cargando kangaFit.json:',err);
