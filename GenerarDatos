@@ -1,13 +1,3 @@
-"""
-KangaFit Analytics — Dataset Generator v4.0 (Premium Niche Edition)
-===================================================================
-Principios de diseño:
-  - ventas_mensuales es la ÚNICA fuente de verdad.
-  - Cada registro de venta incluye especie → todo lo demás se agrega desde ahí.
-  - Ningún KPI, ratio ni distribución es hardcodeado si puede calcularse.
-  - Calibrado para marca nicho premium (~$5M AUD anuales, ticket alto, volumen bajo).
-"""
-
 import json
 import random
 import math
@@ -96,10 +86,10 @@ MIX_ESPECIE_REGION = {
 
 # Densidad de mercado por región
 DENSIDAD_MERCADO = {
-    "Outback Central":     1.80,   
-    "Queensland":          1.20,   
-    "Victoria":            0.80,   
-    "Nueva Gales del Sur": 0.55,   
+    "Outback Central":     1.80,
+    "Queensland":          1.20,
+    "Victoria":            0.80,
+    "Nueva Gales del Sur": 0.55,
 }
 
 # Estacionalidad
@@ -109,21 +99,36 @@ ESTACIONALIDAD = {
 }
 
 MOTIVOS_DEV = [
-    "Bolsillo demasiado estrecho", "Short sube durante sprint",
-    "Orificio de cola mal ubicado", "Talla incorrecta de joey",
-    "Color desvanecido", "Costura defectuosa", "Tela irrita el pelaje",
-    "Tira elástica muy floja", "Guante no se adapta a la pata",
+    "Bolsillo demasiado estrecho",     # 0 (Pouch, Vest)
+    "Short sube durante sprint",       # 1 (Leggings, Shorts)
+    "Orificio de cola mal ubicado",    # 2 (Leggings, Shorts, Tail, Tanga)
+    "Talla incorrecta de joey",        # 3 (Pouch, Vest)
+    "Color desvanecido",               # 4 (Todos)
+    "Costura defectuosa",              # 5 (Todos)
+    "Tela irrita el pelaje",           # 6 (Todos)
+    "Tira elástica muy floja",         # 7 (Shorts, Headband, Tanga)
+    "Guante no se adapta a la pata",   # 8 (Solo guantes)
+    "Cierre / Cremallera atascada",    # 9 (Pouch, Vest)
+    "Llegó con olor a químico",        # 10 (Todos)
+    "Se encogió en el primer lavado",  # 11 (Todos menos guantes/pouch)
+    "Fricción en saltos largos",       # 12 (Leggings, shorts, tail, medias)
+    "Error de logística / Envío",      # 13 (Todos)
+    "Correas rozan los hombros",       # 14 (Pouch, Vest)
 ]
 
 MOTIVOS_PESO = {
-    "SPP": [0.70, 0.05, 0.08, 0.08, 0.04, 0.03, 0.01, 0.00, 0.01],
-    "KBG": [0.05, 0.05, 0.10, 0.05, 0.08, 0.12, 0.05, 0.10, 0.40],
-    "KCL": [0.10, 0.55, 0.05, 0.10, 0.05, 0.07, 0.03, 0.04, 0.01],
-    "BB3": [0.05, 0.50, 0.20, 0.08, 0.05, 0.05, 0.02, 0.04, 0.01],
-    "TSC": [0.20, 0.10, 0.38, 0.05, 0.05, 0.14, 0.05, 0.02, 0.01],
-    "KTG": [0.05, 0.10, 0.15, 0.25, 0.10, 0.10, 0.15, 0.09, 0.01],
-    "HBD": [0.05, 0.05, 0.05, 0.10, 0.20, 0.15, 0.10, 0.28, 0.02],
-    "_default": [0.15, 0.15, 0.10, 0.18, 0.12, 0.12, 0.08, 0.07, 0.03],
+    #               0     1     2     3     4     5     6     7     8     9    10    11    12    13    14
+    "SPP":        [0.40, 0.00, 0.00, 0.15, 0.05, 0.05, 0.05, 0.00, 0.00, 0.10, 0.05, 0.00, 0.00, 0.05, 0.10], # Sports Pouch
+    "KBG":        [0.00, 0.00, 0.00, 0.00, 0.05, 0.10, 0.05, 0.00, 0.60, 0.00, 0.05, 0.00, 0.00, 0.15, 0.00], # Guantes
+    "KCL":        [0.00, 0.40, 0.10, 0.00, 0.05, 0.10, 0.05, 0.05, 0.00, 0.00, 0.02, 0.08, 0.10, 0.05, 0.00], # Leggings
+    "BB3":        [0.00, 0.45, 0.10, 0.00, 0.05, 0.05, 0.05, 0.05, 0.00, 0.00, 0.02, 0.08, 0.10, 0.05, 0.00], # Shorts
+    "HDT":        [0.00, 0.00, 0.00, 0.00, 0.15, 0.20, 0.25, 0.00, 0.00, 0.00, 0.05, 0.20, 0.00, 0.15, 0.00], # Remera
+    "PGS":        [0.00, 0.00, 0.00, 0.00, 0.10, 0.20, 0.20, 0.00, 0.00, 0.00, 0.05, 0.15, 0.20, 0.10, 0.00], # Medias
+    "TSC":        [0.00, 0.00, 0.45, 0.00, 0.05, 0.10, 0.10, 0.00, 0.00, 0.00, 0.02, 0.08, 0.15, 0.05, 0.00], # Funda cola
+    "JCV":        [0.35, 0.00, 0.00, 0.25, 0.05, 0.10, 0.05, 0.00, 0.00, 0.05, 0.02, 0.00, 0.00, 0.03, 0.10], # Vest
+    "KTG":        [0.00, 0.00, 0.35, 0.00, 0.05, 0.10, 0.10, 0.15, 0.00, 0.00, 0.02, 0.13, 0.00, 0.10, 0.00], # Tanga Roo
+    "HBD":        [0.00, 0.00, 0.00, 0.00, 0.10, 0.10, 0.10, 0.40, 0.00, 0.00, 0.02, 0.18, 0.00, 0.10, 0.00], # Vincha
+    "_default":   [0.00, 0.00, 0.00, 0.00, 0.15, 0.15, 0.20, 0.00, 0.00, 0.00, 0.10, 0.10, 0.10, 0.20, 0.00],
 }
 
 NOMBRES_CLIENTES = [
@@ -134,29 +139,33 @@ NOMBRES_CLIENTES = [
     "Agile A.", "Bennett's B.", "Lumholtz L.", "Goodfellow G.", "Tree Roo T.",
 ]
 
-TEXTOS_POS = [
-    "El {producto} aguantó dos joeys durante un maratón completo. Por fin una marca que entiende la anatomía.",
-    "La transpirabilidad en zonas del bolsillo es impresionante. Ideal para el calor del outback.",
-    "Por fin una marca que entendió el clearance de cola. Indispensable para saltos de más de 10m.",
-    "Compré el {producto} para el triatlón inter-species. Mi joey llegó fresco y sin una queja.",
-    "Calidad de tela excepcional. Lavé 40 veces y mantiene el color y la forma.",
-    "El refuerzo lateral del bolsillo es lo que necesitaba. Ningún otro fabricante lo ofrece.",
-    "Excelente relación calidad-precio. El mejor {producto} que usé en 7 temporadas.",
-    "El sistema de cierre es un antes y un después. Cero preocupaciones en pista.",
-    "Los guantes se adaptan perfectamente a la morfología de mi pata. Nunca pensé que existiría algo así.",
-    "La cinta se mantiene en su lugar incluso después de saltos de 12 metros. Increíble.",
-]
-TEXTOS_NEG = [
-    "El {producto} se cayó en el primer salto. Devolví el mismo día.",
-    "Las costuras del orificio de cola cedieron a las dos semanas de uso.",
-    "El bolsillo es demasiado estrecho para un joey de más de 800g.",
-    "El short sube en cada tercer salto. Ideal para entrenamiento liviano, no para competencia.",
-    "El color naranja outback choca con mi pelaje. No hay opciones de gris o marrón.",
-    "La tela pica. No sé qué materiales usaron pero no son aptos para pelaje denso.",
-    "Llegó la talla incorrecta. El sistema de guía de tallas no contempla la longitud de la cola.",
-    "La Kanguita es linda pero la tira elástica se estira demasiado rápido.",
-    "El relleno del guante es insuficiente para sesiones intensas de boxeo.",
-]
+REVIEWS_POS = {
+    "SPP": ["El bolsillo aguantó dos joeys durante un maratón completo.", "Por fin una marca que entendió el clearance de cola.", "La transpirabilidad en zonas del bolsillo es impresionante."],
+    "JCV": ["El chaleco reparte el peso del joey perfecto.", "Ideal para entrenar con crías grandes en el desierto."],
+    "KBG": ["Los guantes se adaptan perfectamente a la morfología de mi pata.", "El sistema de cierre es un antes y un después en el ring."],
+    "KCL": ["Calidad de tela excepcional. Lavé 40 veces y mantienen la compresión.", "No se bajan durante los saltos largos."],
+    "BB3": ["Short súper ligero. Ideal para el calor del outback.", "El orificio de cola está a la altura perfecta."],
+    "HDT": ["La remera es súper transpirable.", "El diseño es súper aerodinámico, siento que gané velocidad."],
+    "PGS": ["Las medias tienen un agarre increíble en la tierra roja.", "No se resbalan nunca, perfectas para la pista."],
+    "TSC": ["La compresión en la cola me ayudó con mi lesión.", "Excelente soporte para saltos de más de 12 metros."],
+    "KTG": ["Súper cómoda y no se marca bajo las calzas.", "La tira elástica es súper suave contra el pelaje."],
+    "HBD": ["Mantiene el sudor lejos de los ojos perfectamente.", "Se ajusta sin apretar las orejas."],
+    "_gen": ["Excelente relación calidad-precio. El mejor {producto} que usé.", "Recomendadísimo por toda mi manada.", "El envío fue rapidísimo a mi región.", "Me encanta que usen materiales eco-friendly."]
+}
+
+REVIEWS_NEG = {
+    "SPP": ["El bolsillo es demasiado estrecho para un joey de más de 800g.", "Se cayó en el primer salto. Devolví el mismo día."],
+    "JCV": ["Las correas me rozan los hombros con saltos largos.", "Demasiado caluroso para usarlo en verano."],
+    "KBG": ["El relleno del guante es insuficiente para sesiones intensas.", "Se gastaron muy rápido con la bolsa de boxeo pesada."],
+    "KCL": ["La tela pica un poco con el sudor.", "Las costuras ceden después de un par de meses de uso intensivo."],
+    "BB3": ["El short sube en cada tercer salto. Ideal para entrenamiento liviano, no competencia."],
+    "HDT": ["El color destiñó en el primer lavado.", "Es muy corta de torso, no me cubre bien."],
+    "PGS": ["Se le hicieron agujeros por las garras muy rápido.", "Ajustan demasiado en los tobillos."],
+    "TSC": ["Me corta un poco la circulación si la uso más de 2 horas.", "Súper difícil de poner solo."],
+    "KTG": ["La tira elástica se estira demasiado rápido.", "Incomoda para saltos de alta intensidad."],
+    "HBD": ["Me aprieta demasiado las orejas.", "Pierde elasticidad rápido tras un par de lavados."],
+    "_gen": ["El envío tardó muchísimo.", "La atención al cliente fue nula cuando quise cambiar la talla.", "Esperaba más por el precio. No lo recomiendo.", "Las terminaciones son muy desprolijas."]
+}
 
 ATLETAS_RAW = [
     {"nombre": "Big Red",     "especie": "Canguro rojo",    "region": "Outback Central", "categoria": "Élite",        "salto_max": 14.2, "vel_crucero": 71, "fc_reposo": 56, "mejora_kit": 0.18},
@@ -193,8 +202,8 @@ def _ruido() -> float:
 
 def _base_unidades(mes_idx: int, total_meses: int) -> float:
     """ Curva de crecimiento S-logística calibrada para MARCA NICHO PREMIUM """
-    k  = 600          # Capacidad máxima reducida (Exclusividad)
-    x0 = total_meses * 0.55   
+    k  = 1000          # Capacidad máxima reducida (Exclusividad)
+    x0 = total_meses * 0.55
     r  = 0.10         # Velocidad de crecimiento suave
     return k / (1 + math.exp(-r * (mes_idx - x0))) + 5
 
@@ -365,17 +374,28 @@ def calcular_devoluciones(vm: list[dict]) -> list[dict]:
 # ─────────────────────────────────────────────────────────────
 # 5. REVIEWS — generadas desde ventas (~5-8 %)
 # ─────────────────────────────────────────────────────────────
-
 def generar_reviews(vm: list[dict]) -> list[dict]:
     registros = []
     rev_id = 1
     for v in vm:
-        # RATIO REALISTA PREMIUM: 5% a 8%
-        n = round(v["unidades"] * random.uniform(0.05, 0.08))
+        # RATIO PREMIUM ACCESIBLE: 2% a 4% de los compradores dejan review
+        n_raw = v["unidades"] * random.uniform(0.02, 0.04)
+        
+        # TOPE DE SEGURIDAD VITAL: Máximo 25 reviews por producto/mes para no reventar el JSON
+        n = min(25, round(n_raw)) 
+        
+        # Siempre aseguramos alguna que otra review aunque las ventas sean bajas ese mes
+        if n <= 0 and random.random() < 0.20:
+            n = 1
+            
         for _ in range(n):
             pid    = v["producto_id"]
             rating = max(1, min(5, round(random.gauss(RATING_BASE[pid], 0.8))))
-            texto  = random.choice(TEXTOS_POS if rating >= 4 else TEXTOS_NEG)
+            
+            pool_dict = REVIEWS_POS if rating >= 4 else REVIEWS_NEG
+            pool = pool_dict.get(pid, pool_dict["_gen"]) + pool_dict["_gen"]
+            
+            texto  = random.choice(pool)
             texto  = texto.replace("{producto}", v["producto_nombre"])
             dia    = random.randint(1, 28)
 
@@ -391,13 +411,11 @@ def generar_reviews(vm: list[dict]) -> list[dict]:
                 "rating":          rating,
                 "texto":           texto,
                 "verificada":      True,
-                "respondida":      random.random() < 0.91,
+                "respondida":      random.random() < 0.40, # En este modelo responden algunas, pero no todas
             })
             rev_id += 1
 
     return registros
-
-# ─────────────────────────────────────────────────────────────
 # 6. ESTADÍSTICAS DE REVIEWS
 # ─────────────────────────────────────────────────────────────
 
@@ -446,11 +464,11 @@ def calcular_stats_reviews(reviews: list[dict]) -> dict:
 
     return {
         "reviews_total_q1":      len(q1),
-        "reviews_total_q2":      len(q2),          
+        "reviews_total_q2":      len(q2),
         "rating_promedio_q2":    rating_prom(q2),
         "pct_respondidas_q2":    pct_respondidas(q2),
-        "distribucion_ratings":  distrib_ratings(q2),   
-        "temas_reviews":         contar_temas(q2),       
+        "distribucion_ratings":  distrib_ratings(q2),
+        "temas_reviews":         contar_temas(q2),
     }
 
 # ─────────────────────────────────────────────────────────────
@@ -506,7 +524,7 @@ def calcular_especies(vm: list[dict]) -> list[dict]:
             "unidades_q2":            uni_q2_esp,
             "revenue_q2":             round(rev_q2_esp, 2),
             "revenue_q1":             round(rev_q1_esp, 2),
-            "delta_q1_pct":           delta,              
+            "delta_q1_pct":           delta,
             "producto_favorito":      fav_nombre,
             "pct_producto_favorito":  fav_pct,
             **datos_extra[especie],
@@ -524,7 +542,7 @@ def construir_kpis(m: dict, stats_rev: dict, devoluciones: list[dict]) -> dict:
     total_uni  = sum(d["unidades_vendidas_q2"] for d in devoluciones)
     total_dev  = sum(d["unidades_devueltas"]   for d in devoluciones)
     tasa_dev_real_q2 = round(total_dev / total_uni * 100, 1) if total_uni > 0 else 0
-    tasa_dev_q1 = round(tasa_dev_real_q2 * random.uniform(0.82, 0.90), 1) 
+    tasa_dev_q1 = round(tasa_dev_real_q2 * random.uniform(0.82, 0.90), 1)
 
     canal_revenue = {
         "E-commerce propio":     round(rev_q2 * 0.46, 2),
@@ -567,12 +585,12 @@ def construir_kpis(m: dict, stats_rev: dict, devoluciones: list[dict]) -> dict:
         "record_salto_temporada":     14.2,
         "record_atleta":              "Big Red",
         "canal_revenue": canal_revenue,
-        "reviews_total_q2":        stats_rev["reviews_total_q2"],   
-        "reviews_q1":              stats_rev["reviews_total_q1"],   
+        "reviews_total_q2":        stats_rev["reviews_total_q2"],
+        "reviews_q1":              stats_rev["reviews_total_q1"],
         "rating_promedio":         stats_rev["rating_promedio_q2"],
         "reviews_respondidas_pct": stats_rev["pct_respondidas_q2"],
-        "distribucion_ratings":    stats_rev["distribucion_ratings"],  
-        "temas_reviews":           stats_rev["temas_reviews"],         
+        "distribucion_ratings":    stats_rev["distribucion_ratings"],
+        "temas_reviews":           stats_rev["temas_reviews"],
         "palabra_mas_usada":       "bolsillo",
     }
 
@@ -597,74 +615,72 @@ def generar_atletas() -> list[dict]:
 # ─────────────────────────────────────────────────────────────
 # MAIN
 # ─────────────────────────────────────────────────────────────
-
 def main():
     print("╔══════════════════════════════════════════╗")
-    print("║  KangaFit Dataset Generator  v4.0        ║")
+    print("║  KangaFit Dataset Generator  v4.2        ║")
     print("╚══════════════════════════════════════════╝\n")
 
-    print("  [1/6] Generando ventas mensuales...")
-    vm = generar_ventas_mensuales()
+    try:
+        print("  [1/6] Generando ventas mensuales...")
+        vm = generar_ventas_mensuales()
 
-    print("  [2/6] Calculando métricas...")
-    metricas = calcular_metricas(vm)
+        print("  [2/6] Calculando métricas...")
+        metricas = calcular_metricas(vm)
 
-    print("  [3/6] Generando reviews...")
-    reviews = generar_reviews(vm)
-    stats_rev = calcular_stats_reviews(reviews)
+        print("  [3/6] Generando reviews...")
+        reviews = generar_reviews(vm)
+        stats_rev = calcular_stats_reviews(reviews)
 
-    print("  [4/6] Calculando devoluciones...")
-    devoluciones = calcular_devoluciones(vm)
+        print("  [4/6] Calculando devoluciones...")
+        devoluciones = calcular_devoluciones(vm)
 
-    print("  [5/6] Agregando por región/especie y calculando KPIs...")
-    region_especie = agregar_region_especie(vm)
-    especies       = calcular_especies(vm)
-    kpis           = construir_kpis(metricas, stats_rev, devoluciones)
-    atletas        = generar_atletas()
+        print("  [5/6] Agregando por región/especie y calculando KPIs...")
+        region_especie = agregar_region_especie(vm)
+        especies       = calcular_especies(vm)
+        kpis           = construir_kpis(metricas, stats_rev, devoluciones)
+        atletas        = generar_atletas()
 
-    print("  [6/6] Ensamblando dataset final...")
-    dataset = {
-        "metadata": {
-            "generado":          datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "descripcion":       "KangaFit Analytics — Crecimiento histórico",
-            "periodo":           "Mayo 2019 – Mayo 2026",
-            "version":           "4.0",
-            "fuente_de_verdad":  "Todos los KPIs se calculan desde ventas_mensuales.",
-        },
-        "kpis":                kpis,
-        "productos":           PRODUCTOS,
-        "ventas_mensuales":    vm,
-        "ventas_por_region":   region_especie,   
-        "devoluciones":        devoluciones,
-        "reviews":             reviews,
-        "atletas":             atletas,
-        "especies":            especies,
-        "metricas_calculadas": metricas,
-    }
+        print("  [6/6] Ensamblando dataset final...")
+        dataset = {
+            "metadata": {
+                "generado":          datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "version":           "4.2",
+                "modelo":            "Premium Accessible (Masstige)",
+                "registros_totales": len(vm) + len(reviews)
+            },
+            "kpis":                kpis,
+            "productos":           PRODUCTOS,
+            "ventas_mensuales":    vm,
+            "ventas_por_region":   region_especie,
+            "devoluciones":        devoluciones,
+            "reviews":             reviews,
+            "atletas":             atletas,
+            "especies":            especies
+        }
 
-    out = "KangaFit2.json"
-    with open(out, "w", encoding="utf-8") as f:
-        json.dump(dataset, f, ensure_ascii=False, indent=2)
+        # USAMOS 'WITH' PARA ASEGURAR EL CIERRE Y BAJAMOS EL INDENT A 2
+        out = "KangaFit.json"
+        with open(out, "w", encoding="utf-8") as f:
+            json.dump(dataset, f, ensure_ascii=False, indent=2)
+            f.flush() # Vacía la memoria al disco de golpe
 
-    rev_q1  = metricas["q1_2025_revenue"]
-    rev_q2  = metricas["q2_2025_revenue"]
-    uni_q2  = metricas["q2_2025_unidades"]
-    total_dev_q2 = sum(d["unidades_devueltas"] for d in devoluciones)
-    total_uni_q2 = sum(d["unidades_vendidas_q2"] for d in devoluciones)
-    tasa_ponderada = round(total_dev_q2 / total_uni_q2 * 100, 1) if total_uni_q2 > 0 else 0
+        # --- DIAGNÓSTICO DE FILAS ---
+        total_registros = len(vm) + len(reviews) + len(devoluciones)
+        lineas_estimadas = total_registros * 13 
+        
+        print(f"\n{'─'*50}")
+        print(f"  📊 DIAGNÓSTICO PREMIUM ACCESIBLE")
+        print(f"{'─'*50}")
+        print(f"  Ventas generadas : {len(vm):>10,} registros")
+        print(f"  Reviews generadas: {len(reviews):>10,} registros")
+        print(f"  Total de Objetos : {total_registros:>10,} items")
+        print(f"  FILAS EN ARCHIVO : ~{lineas_estimadas:>9,} líneas de código JSON")
+        print(f"\n  💸 Revenue Q2 25 : ${metricas['q2_2025_revenue']:>14,.0f} AUD")
+        print(f"  📦 Unidades Q2 25: {metricas['q2_2025_unidades']:>15,}")
+        print(f"\n  ✅  {out} completado al 100%. Las llaves cerraron bien.")
 
-    print(f"\n{'─'*50}")
-    print(f"  Revenue Q1 2025  : ${rev_q1:>14,.0f} AUD")
-    print(f"  Revenue Q2 2025  : ${rev_q2:>14,.0f} AUD")
-    print(f"  Δ Q1→Q2          : {metricas['delta_q2_vs_q1_pct']:>+.1f} %")
-    print(f"  Δ YoY            : {metricas['delta_q2_yoy_pct']:>+.1f} %")
-    print(f"  Unidades Q2      : {uni_q2:>14,}")
-    print(f"  Ticket prom. Q2  : ${metricas['ticket_q2_2025']:>14,.2f} AUD")
-    print(f"  Tasa dev. pond.  : {tasa_ponderada} %")
-    print(f"  Reviews Q2 real  : {stats_rev['reviews_total_q2']:,}")
-    print(f"  Rating prom. Q2  : {stats_rev['rating_promedio_q2']}")
-    print(f"  Revenue histórico: ${metricas['rev_historico']:>14,.0f} AUD")
-    print(f"\n  ✅  {out} generado correctamente")
+    except Exception as e:
+        print(f"\n  ❌ ERROR CRÍTICO: {str(e)}")
 
 if __name__ == "__main__":
     main()
