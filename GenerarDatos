@@ -202,7 +202,7 @@ def _ruido() -> float:
 
 def _base_unidades(mes_idx: int, total_meses: int) -> float:
     """ Curva de crecimiento S-logística calibrada para MARCA NICHO PREMIUM """
-    k  = 600          # Capacidad máxima reducida (Exclusividad)
+    k  = 1000          # Capacidad máxima reducida (Exclusividad)
     x0 = total_meses * 0.55
     r  = 0.10         # Velocidad de crecimiento suave
     return k / (1 + math.exp(-r * (mes_idx - x0))) + 5
@@ -374,20 +374,25 @@ def calcular_devoluciones(vm: list[dict]) -> list[dict]:
 # ─────────────────────────────────────────────────────────────
 # 5. REVIEWS — generadas desde ventas (~5-8 %)
 # ─────────────────────────────────────────────────────────────
-
 def generar_reviews(vm: list[dict]) -> list[dict]:
     registros = []
     rev_id = 1
     for v in vm:
-        # RATIO REALISTA PREMIUM: 5% a 8%
-        n = round(v["unidades"] * random.uniform(0.05, 0.08))
+        # RATIO PREMIUM ACCESIBLE: 2% a 4% de los compradores dejan review
+        n_raw = v["unidades"] * random.uniform(0.02, 0.04)
+        
+        # TOPE DE SEGURIDAD VITAL: Máximo 25 reviews por producto/mes para no reventar el JSON
+        n = min(25, round(n_raw)) 
+        
+        # Siempre aseguramos alguna que otra review aunque las ventas sean bajas ese mes
+        if n <= 0 and random.random() < 0.20:
+            n = 1
+            
         for _ in range(n):
             pid    = v["producto_id"]
             rating = max(1, min(5, round(random.gauss(RATING_BASE[pid], 0.8))))
             
-            # Elegimos de qué "bolsa" sacar el comentario
             pool_dict = REVIEWS_POS if rating >= 4 else REVIEWS_NEG
-            # Unimos los comentarios específicos de ese producto + los genéricos
             pool = pool_dict.get(pid, pool_dict["_gen"]) + pool_dict["_gen"]
             
             texto  = random.choice(pool)
@@ -406,12 +411,11 @@ def generar_reviews(vm: list[dict]) -> list[dict]:
                 "rating":          rating,
                 "texto":           texto,
                 "verificada":      True,
-                "respondida":      random.random() < 0.91,
+                "respondida":      random.random() < 0.40, # En este modelo responden algunas, pero no todas
             })
             rev_id += 1
 
     return registros
-# ─────────────────────────────────────────────────────────────
 # 6. ESTADÍSTICAS DE REVIEWS
 # ─────────────────────────────────────────────────────────────
 
@@ -611,74 +615,72 @@ def generar_atletas() -> list[dict]:
 # ─────────────────────────────────────────────────────────────
 # MAIN
 # ─────────────────────────────────────────────────────────────
-
 def main():
     print("╔══════════════════════════════════════════╗")
-    print("║  KangaFit Dataset Generator  v4.0        ║")
+    print("║  KangaFit Dataset Generator  v4.2        ║")
     print("╚══════════════════════════════════════════╝\n")
 
-    print("  [1/6] Generando ventas mensuales...")
-    vm = generar_ventas_mensuales()
+    try:
+        print("  [1/6] Generando ventas mensuales...")
+        vm = generar_ventas_mensuales()
 
-    print("  [2/6] Calculando métricas...")
-    metricas = calcular_metricas(vm)
+        print("  [2/6] Calculando métricas...")
+        metricas = calcular_metricas(vm)
 
-    print("  [3/6] Generando reviews...")
-    reviews = generar_reviews(vm)
-    stats_rev = calcular_stats_reviews(reviews)
+        print("  [3/6] Generando reviews...")
+        reviews = generar_reviews(vm)
+        stats_rev = calcular_stats_reviews(reviews)
 
-    print("  [4/6] Calculando devoluciones...")
-    devoluciones = calcular_devoluciones(vm)
+        print("  [4/6] Calculando devoluciones...")
+        devoluciones = calcular_devoluciones(vm)
 
-    print("  [5/6] Agregando por región/especie y calculando KPIs...")
-    region_especie = agregar_region_especie(vm)
-    especies       = calcular_especies(vm)
-    kpis           = construir_kpis(metricas, stats_rev, devoluciones)
-    atletas        = generar_atletas()
+        print("  [5/6] Agregando por región/especie y calculando KPIs...")
+        region_especie = agregar_region_especie(vm)
+        especies       = calcular_especies(vm)
+        kpis           = construir_kpis(metricas, stats_rev, devoluciones)
+        atletas        = generar_atletas()
 
-    print("  [6/6] Ensamblando dataset final...")
-    dataset = {
-        "metadata": {
-            "generado":          datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "descripcion":       "KangaFit Analytics — Crecimiento histórico",
-            "periodo":           "Mayo 2019 – Mayo 2026",
-            "version":           "4.0",
-            "fuente_de_verdad":  "Todos los KPIs se calculan desde ventas_mensuales.",
-        },
-        "kpis":                kpis,
-        "productos":           PRODUCTOS,
-        "ventas_mensuales":    vm,
-        "ventas_por_region":   region_especie,
-        "devoluciones":        devoluciones,
-        "reviews":             reviews,
-        "atletas":             atletas,
-        "especies":            especies,
-        "metricas_calculadas": metricas,
-    }
+        print("  [6/6] Ensamblando dataset final...")
+        dataset = {
+            "metadata": {
+                "generado":          datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "version":           "4.2",
+                "modelo":            "Premium Accessible (Masstige)",
+                "registros_totales": len(vm) + len(reviews)
+            },
+            "kpis":                kpis,
+            "productos":           PRODUCTOS,
+            "ventas_mensuales":    vm,
+            "ventas_por_region":   region_especie,
+            "devoluciones":        devoluciones,
+            "reviews":             reviews,
+            "atletas":             atletas,
+            "especies":            especies
+        }
 
-    out = "KangaFit2.json"
-    with open(out, "w", encoding="utf-8") as f:
-        json.dump(dataset, f, ensure_ascii=False, indent=2)
+        # USAMOS 'WITH' PARA ASEGURAR EL CIERRE Y BAJAMOS EL INDENT A 2
+        out = "KangaFit.json"
+        with open(out, "w", encoding="utf-8") as f:
+            json.dump(dataset, f, ensure_ascii=False, indent=2)
+            f.flush() # Vacía la memoria al disco de golpe
 
-    rev_q1  = metricas["q1_2025_revenue"]
-    rev_q2  = metricas["q2_2025_revenue"]
-    uni_q2  = metricas["q2_2025_unidades"]
-    total_dev_q2 = sum(d["unidades_devueltas"] for d in devoluciones)
-    total_uni_q2 = sum(d["unidades_vendidas_q2"] for d in devoluciones)
-    tasa_ponderada = round(total_dev_q2 / total_uni_q2 * 100, 1) if total_uni_q2 > 0 else 0
+        # --- DIAGNÓSTICO DE FILAS ---
+        total_registros = len(vm) + len(reviews) + len(devoluciones)
+        lineas_estimadas = total_registros * 13 
+        
+        print(f"\n{'─'*50}")
+        print(f"  📊 DIAGNÓSTICO PREMIUM ACCESIBLE")
+        print(f"{'─'*50}")
+        print(f"  Ventas generadas : {len(vm):>10,} registros")
+        print(f"  Reviews generadas: {len(reviews):>10,} registros")
+        print(f"  Total de Objetos : {total_registros:>10,} items")
+        print(f"  FILAS EN ARCHIVO : ~{lineas_estimadas:>9,} líneas de código JSON")
+        print(f"\n  💸 Revenue Q2 25 : ${metricas['q2_2025_revenue']:>14,.0f} AUD")
+        print(f"  📦 Unidades Q2 25: {metricas['q2_2025_unidades']:>15,}")
+        print(f"\n  ✅  {out} completado al 100%. Las llaves cerraron bien.")
 
-    print(f"\n{'─'*50}")
-    print(f"  Revenue Q1 2025  : ${rev_q1:>14,.0f} AUD")
-    print(f"  Revenue Q2 2025  : ${rev_q2:>14,.0f} AUD")
-    print(f"  Δ Q1→Q2          : {metricas['delta_q2_vs_q1_pct']:>+.1f} %")
-    print(f"  Δ YoY            : {metricas['delta_q2_yoy_pct']:>+.1f} %")
-    print(f"  Unidades Q2      : {uni_q2:>14,}")
-    print(f"  Ticket prom. Q2  : ${metricas['ticket_q2_2025']:>14,.2f} AUD")
-    print(f"  Tasa dev. pond.  : {tasa_ponderada} %")
-    print(f"  Reviews Q2 real  : {stats_rev['reviews_total_q2']:,}")
-    print(f"  Rating prom. Q2  : {stats_rev['rating_promedio_q2']}")
-    print(f"  Revenue histórico: ${metricas['rev_historico']:>14,.0f} AUD")
-    print(f"\n  ✅  {out} generado correctamente")
+    except Exception as e:
+        print(f"\n  ❌ ERROR CRÍTICO: {str(e)}")
 
 if __name__ == "__main__":
     main()
