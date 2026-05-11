@@ -2,7 +2,7 @@
 
 **KangaFit** es la primera y única marca del mundo dedicada exclusivamente al arte de la confección de ropa deportiva premium para canguros de alto rendimiento. Este dashboard interactivo permite visualizar el crecimiento masivo, la segmentación por especies y la eficiencia operativa de la empresa en el mercado australiano.
 
-![Logo KangaFit](KangaFit.png)
+![Logo KangaFit](KangaFit-2.png)
 *Identidad visual de la marca líder en rendimiento marsupial.*
 
 ## 🚀 Cómo ejecutar el proyecto
