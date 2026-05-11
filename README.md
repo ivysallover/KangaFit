@@ -35,4 +35,4 @@ A diferencia de otros dashboards con datos estáticos, KangaFit utiliza un **mot
 * **Segmento Élite**: El Canguro Rojo se mantiene como el líder de mercado, mientras que el Canguro Arbóreo representa el ticket promedio más alto debido a la especialización técnica requerida.
 
 ---
-*Este proyecto forma parte de un flujo de trabajo avanzado de Business Intelligence y Data Science.*
+*Este proyecto forma parte de un trabajo final de la catedra de  Visualizacion de Datos de la carrera Ciencia de Datos (UCA Rosario).*
