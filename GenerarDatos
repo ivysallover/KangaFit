@@ -139,56 +139,33 @@ NOMBRES_CLIENTES = [
     "Agile A.", "Bennett's B.", "Lumholtz L.", "Goodfellow G.", "Tree Roo T.",
 ]
 
-TEXTOS_POS = [
-    # Los originales
-    "El {producto} aguantó dos joeys durante un maratón completo. Por fin una marca que entiende la anatomía.",
-    "La transpirabilidad en zonas del bolsillo es impresionante. Ideal para el calor del outback.",
-    "Por fin una marca que entendió el clearance de cola. Indispensable para saltos de más de 10m.",
-    "Compré el {producto} para el triatlón inter-species. Mi joey llegó fresco y sin una queja.",
-    "Calidad de tela excepcional. Lavé 40 veces y mantiene el color y la forma.",
-    "El refuerzo lateral del bolsillo es lo que necesitaba. Ningún otro fabricante lo ofrece.",
-    "Excelente relación calidad-precio. El mejor {producto} que usé en 7 temporadas.",
-    "El sistema de cierre es un antes y un después. Cero preocupaciones en pista.",
-    "Los guantes se adaptan perfectamente a la morfología de mi pata. Nunca pensé que existiría algo así.",
-    "La cinta se mantiene en su lugar incluso después de saltos de 12 metros. Increíble.",
+REVIEWS_POS = {
+    "SPP": ["El bolsillo aguantó dos joeys durante un maratón completo.", "Por fin una marca que entendió el clearance de cola.", "La transpirabilidad en zonas del bolsillo es impresionante."],
+    "JCV": ["El chaleco reparte el peso del joey perfecto.", "Ideal para entrenar con crías grandes en el desierto."],
+    "KBG": ["Los guantes se adaptan perfectamente a la morfología de mi pata.", "El sistema de cierre es un antes y un después en el ring."],
+    "KCL": ["Calidad de tela excepcional. Lavé 40 veces y mantienen la compresión.", "No se bajan durante los saltos largos."],
+    "BB3": ["Short súper ligero. Ideal para el calor del outback.", "El orificio de cola está a la altura perfecta."],
+    "HDT": ["La remera es súper transpirable.", "El diseño es súper aerodinámico, siento que gané velocidad."],
+    "PGS": ["Las medias tienen un agarre increíble en la tierra roja.", "No se resbalan nunca, perfectas para la pista."],
+    "TSC": ["La compresión en la cola me ayudó con mi lesión.", "Excelente soporte para saltos de más de 12 metros."],
+    "KTG": ["Súper cómoda y no se marca bajo las calzas.", "La tira elástica es súper suave contra el pelaje."],
+    "HBD": ["Mantiene el sudor lejos de los ojos perfectamente.", "Se ajusta sin apretar las orejas."],
+    "_gen": ["Excelente relación calidad-precio. El mejor {producto} que usé.", "Recomendadísimo por toda mi manada.", "El envío fue rapidísimo a mi región.", "Me encanta que usen materiales eco-friendly."]
+}
 
-    # NUEVOS (Más variedad)
-    "El diseño del {producto} es súper aerodinámico, siento que gané velocidad en mis rutas diarias.",
-    "Lo uso todos los días para saltar hasta el trabajo. 10/10, súper cómodo.",
-    "Material resistente al polvo rojo del desierto. Se limpia con una sacudida.",
-    "Recomendadísimo por toda mi manada. Ya compramos cuatro {producto}.",
-    "El envío a Queensland fue rapidísimo. Llegó justo para la temporada de torneos.",
-    "Me encanta que KangaFit use materiales eco-friendly. El {producto} se siente muy premium.",
-    "Soporte perfecto sin apretar demasiado. Se nota que hubo investigación biomecánica detrás.",
-    "Invertí en el {producto} dudando por el precio, pero vale cada centavo. Durabilidad extrema.",
-    "El talle me quedó pintado. La guía de medidas de la página es muy exacta.",
-    "A mi joey le encanta la textura interna, se duerme apenas arrancamos a saltar."
-]
-
-TEXTOS_NEG = [
-    # Los originales
-    "El {producto} se cayó en el primer salto. Devolví el mismo día.",
-    "Las costuras del orificio de cola cedieron a las dos semanas de uso.",
-    "El bolsillo es demasiado estrecho para un joey de más de 800g.",
-    "El short sube en cada tercer salto. Ideal para entrenamiento liviano, no para competencia.",
-    "El color naranja outback choca con mi pelaje. No hay opciones de gris o marrón.",
-    "La tela pica. No sé qué materiales usaron pero no son aptos para pelaje denso.",
-    "Llegó la talla incorrecta. El sistema de guía de tallas no contempla la longitud de la cola.",
-    "La Kanguita es linda pero la tira elástica se estira demasiado rápido.",
-    "El relleno del guante es insuficiente para sesiones intensas de boxeo.",
-
-    # NUEVOS (Más variedad de quejas)
-    "El envío tardó muchísimo en llegar a Victoria. El {producto} en sí está ok, pero la logística es mala.",
-    "Se rompió al tercer salto largo. Pésima durabilidad en condiciones reales de outback.",
-    "El {producto} destiñó en el primer lavado y me manchó el pelaje de las patas.",
-    "La atención al cliente fue nula cuando quise cambiar la talla. Sigo esperando respuesta.",
-    "Esperaba más por el precio. No volvería a comprar la línea actual.",
-    "Huele raro al sacarlo del empaque, como a químicos fuertes. Lo tuve que dejar al sol dos días.",
-    "Las terminaciones del {producto} son muy desprolijas. Hilos sueltos por todos lados.",
-    "Dice ser 'talla única' pero si sos un Canguro Rojo de más de 85kg te va a quedar ridículamente ajustado.",
-    "Me mandaron el color equivocado. Pedí Arena y me llegó un marrón oscurísimo.",
-    "La funcionalidad está bien, pero estéticamente el {producto} parece de hace 10 años."
-]
+REVIEWS_NEG = {
+    "SPP": ["El bolsillo es demasiado estrecho para un joey de más de 800g.", "Se cayó en el primer salto. Devolví el mismo día."],
+    "JCV": ["Las correas me rozan los hombros con saltos largos.", "Demasiado caluroso para usarlo en verano."],
+    "KBG": ["El relleno del guante es insuficiente para sesiones intensas.", "Se gastaron muy rápido con la bolsa de boxeo pesada."],
+    "KCL": ["La tela pica un poco con el sudor.", "Las costuras ceden después de un par de meses de uso intensivo."],
+    "BB3": ["El short sube en cada tercer salto. Ideal para entrenamiento liviano, no competencia."],
+    "HDT": ["El color destiñó en el primer lavado.", "Es muy corta de torso, no me cubre bien."],
+    "PGS": ["Se le hicieron agujeros por las garras muy rápido.", "Ajustan demasiado en los tobillos."],
+    "TSC": ["Me corta un poco la circulación si la uso más de 2 horas.", "Súper difícil de poner solo."],
+    "KTG": ["La tira elástica se estira demasiado rápido.", "Incomoda para saltos de alta intensidad."],
+    "HBD": ["Me aprieta demasiado las orejas.", "Pierde elasticidad rápido tras un par de lavados."],
+    "_gen": ["El envío tardó muchísimo.", "La atención al cliente fue nula cuando quise cambiar la talla.", "Esperaba más por el precio. No lo recomiendo.", "Las terminaciones son muy desprolijas."]
+}
 
 ATLETAS_RAW = [
     {"nombre": "Big Red",     "especie": "Canguro rojo",    "region": "Outback Central", "categoria": "Élite",        "salto_max": 14.2, "vel_crucero": 71, "fc_reposo": 56, "mejora_kit": 0.18},
@@ -407,7 +384,13 @@ def generar_reviews(vm: list[dict]) -> list[dict]:
         for _ in range(n):
             pid    = v["producto_id"]
             rating = max(1, min(5, round(random.gauss(RATING_BASE[pid], 0.8))))
-            texto  = random.choice(TEXTOS_POS if rating >= 4 else TEXTOS_NEG)
+            
+            # Elegimos de qué "bolsa" sacar el comentario
+            pool_dict = REVIEWS_POS if rating >= 4 else REVIEWS_NEG
+            # Unimos los comentarios específicos de ese producto + los genéricos
+            pool = pool_dict.get(pid, pool_dict["_gen"]) + pool_dict["_gen"]
+            
+            texto  = random.choice(pool)
             texto  = texto.replace("{producto}", v["producto_nombre"])
             dia    = random.randint(1, 28)
 
@@ -428,7 +411,6 @@ def generar_reviews(vm: list[dict]) -> list[dict]:
             rev_id += 1
 
     return registros
-
 # ─────────────────────────────────────────────────────────────
 # 6. ESTADÍSTICAS DE REVIEWS
 # ─────────────────────────────────────────────────────────────
